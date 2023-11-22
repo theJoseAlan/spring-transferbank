@@ -24,3 +24,10 @@ hs_err_pid*
 replay_pid*
 
 .idea
+
+tb/src/main/resources/.sql
+
+tb/src/main/java/com/spring/tb/domain/model/Endereco.java
+tb/src/main/java/com/spring/tb/domain/repository/EnderecoRepository.java
+tb/pom.xml
+.gitignore
