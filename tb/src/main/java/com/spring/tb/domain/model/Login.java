@@ -1,2 +1,13 @@
-package com.spring.tb.domain.model;public class Login {
+package com.spring.tb.domain.model;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class Login {
+
+    private String email;
+    private String senha;
+
 }
