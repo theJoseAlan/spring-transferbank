@@ -33,13 +33,12 @@ public class JwtTokenService {
     }
 
     public boolean validarToken(String token, String email) {
-        // Extrai as reivindicações do token
+
         Claims claims = Jwts.parser()
                 .setSigningKey(secretKey)
                 .parseClaimsJws(token)
                 .getBody();
 
-        // Valida a expiração e o assunto do token
         if (claims.getExpiration().before(new Date())) {
             return false;
         }
@@ -48,7 +47,6 @@ public class JwtTokenService {
             return false;
         }
 
-        // Se o token for válido, retorne true
         return true;
     }
 

@@ -6,9 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
-import java.util.Optional;
-
 @Service
 public class ClienteService {
 
@@ -42,6 +39,14 @@ public class ClienteService {
         cliente.setSenha(senhaCriptografada);
 
         return clienteRepository.save(cliente);
+    }
+
+    public Cliente buscarPorId(Long id){
+        return clienteRepository.findById(id).get();
+    }
+
+    public Cliente buscarPoremail(String email){
+        return clienteRepository.findByEmail(email).get();
     }
 
 }

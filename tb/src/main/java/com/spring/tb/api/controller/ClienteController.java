@@ -1,8 +1,7 @@
 package com.spring.tb.api.controller;
 
+import com.spring.tb.api.model.Login;
 import com.spring.tb.domain.model.Cliente;
-import com.spring.tb.domain.model.Login;
-import com.spring.tb.domain.repository.ClienteRepository;
 import com.spring.tb.domain.services.ClienteService;
 import com.spring.tb.domain.services.JwtTokenService;
 import jakarta.validation.Valid;
@@ -22,9 +21,6 @@ public class ClienteController {
     private ClienteService clienteService;
 
     @Autowired
-    private ClienteRepository clienteRepository;
-
-    @Autowired
     private JwtTokenService tokenService;
 
     BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
@@ -40,7 +36,7 @@ public class ClienteController {
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody Login login){
 
-        Cliente clienteEncontrado = clienteRepository.findByEmail(login.getEmail()).get();
+        Cliente clienteEncontrado = clienteService.buscarPoremail(login.getEmail());
 
         if(clienteEncontrado == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado");
@@ -61,7 +57,7 @@ public class ClienteController {
     @GetMapping("/{id}")
     public ResponseEntity<Cliente> obter(@PathVariable Long id, @RequestHeader String token){
 
-        Cliente clienteEncontrado = clienteRepository.findById(id).get();
+        Cliente clienteEncontrado = clienteService.buscarPorId(id);
 
         // Verifica se o token é válido
         if (!tokenService.validarToken(token, clienteEncontrado.getEmail())) {

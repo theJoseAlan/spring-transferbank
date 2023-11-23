@@ -1,4 +1,4 @@
-package com.spring.tb.domain.model;
+package com.spring.tb.api.model;
 
 import lombok.Getter;
 import lombok.Setter;
