@@ -2,6 +2,7 @@ package com.spring.tb.api.controller;
 
 import com.spring.tb.api.model.Login;
 import com.spring.tb.domain.model.Cliente;
+import com.spring.tb.domain.repository.ClienteRepository;
 import com.spring.tb.domain.services.ClienteService;
 import com.spring.tb.domain.services.JwtTokenService;
 import jakarta.validation.Valid;
@@ -22,6 +23,9 @@ public class ClienteController {
 
     @Autowired
     private JwtTokenService tokenService;
+
+    @Autowired
+    private ClienteRepository clienteRepository;
 
     BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
@@ -72,7 +76,7 @@ public class ClienteController {
     }
 
     @PutMapping("/atualizar/{id}")
-    public ResponseEntity<?> atualizar(@PathVariable  Long id,
+    public ResponseEntity<Cliente> atualizar(@PathVariable  Long id,
                                              @Valid @RequestBody Cliente cliente,
                                              @RequestHeader String token){
 

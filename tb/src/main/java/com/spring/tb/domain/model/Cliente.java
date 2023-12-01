@@ -1,5 +1,6 @@
 package com.spring.tb.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -13,7 +14,7 @@ import org.hibernate.validator.constraints.br.CPF;
 @Getter
 @Setter
 @AllArgsConstructor
-//@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Cliente {
 
     @Id
@@ -40,8 +41,8 @@ public class Cliente {
     @NotNull
     private String senha;
 
-//    @OneToOne
-//    private Endereco endereco;
+    @OneToOne
+    private Endereco endereco;
 
     public Cliente() {
     }

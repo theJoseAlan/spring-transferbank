@@ -34,7 +34,7 @@ public class ClienteService {
         }
 
         if (cpfEmUso) {
-            throw new NegocioException("Email já cadastrado");
+            throw new NegocioException("CPF já cadastrado");
         }
 
         String senhaCriptografada = bCryptPasswordEncoder.encode(cliente.getSenha());
