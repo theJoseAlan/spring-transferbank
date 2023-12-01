@@ -1,11 +1,12 @@
 package com.spring.tb.api.controller;
 
+import com.spring.tb.api.dto.ClienteDto;
 import com.spring.tb.api.model.Login;
 import com.spring.tb.domain.model.Cliente;
-import com.spring.tb.domain.repository.ClienteRepository;
 import com.spring.tb.domain.services.ClienteService;
 import com.spring.tb.domain.services.JwtTokenService;
 import jakarta.validation.Valid;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,16 +26,19 @@ public class ClienteController {
     private JwtTokenService tokenService;
 
     @Autowired
-    private ClienteRepository clienteRepository;
+    private ModelMapper modelMapper;
 
     BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
     @PostMapping
-    public ResponseEntity<Cliente> cadastrar(@Valid @RequestBody Cliente cliente){
+    public ResponseEntity<ClienteDto> cadastrar(@Valid @RequestBody Cliente cliente){
+
 
         clienteService.salvar(cliente);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(cliente);
+        ClienteDto clienteDto = modelMapper.map(cliente, ClienteDto.class);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(clienteDto);
     }
 
     @PostMapping("/login")
@@ -76,7 +80,7 @@ public class ClienteController {
     }
 
     @PutMapping("/atualizar/{id}")
-    public ResponseEntity<Cliente> atualizar(@PathVariable  Long id,
+    public ResponseEntity<?> atualizar(@PathVariable  Long id,
                                              @Valid @RequestBody Cliente cliente,
                                              @RequestHeader String token){
 
@@ -93,7 +97,7 @@ public class ClienteController {
         cliente.setId(id);
         clienteService.atualizar(cliente);
 
-        return ResponseEntity.status(HttpStatus.OK).body(cliente);
+        return ResponseEntity.status(HttpStatus.OK).body("Cliente atualizado!");
     }
 
 }
