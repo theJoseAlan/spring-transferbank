@@ -9,13 +9,11 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.br.CPF;
 
-import java.util.List;
-
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
-@Table(name = "clientes")
+//@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Cliente {
 
     @Id
@@ -42,8 +40,8 @@ public class Cliente {
     @NotNull
     private String senha;
 
-    @OneToOne
-    private Endereco endereco;
+//    @OneToOne
+//    private Endereco endereco;
 
     public Cliente() {
     }

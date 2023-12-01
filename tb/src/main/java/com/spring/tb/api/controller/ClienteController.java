@@ -6,12 +6,12 @@ import com.spring.tb.domain.services.ClienteService;
 import com.spring.tb.domain.services.JwtTokenService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/cliente")
@@ -28,23 +28,23 @@ public class ClienteController {
     @PostMapping
     public ResponseEntity<Cliente> cadastrar(@Valid @RequestBody Cliente cliente){
 
-        clienteService.cadastrar(cliente);
+        clienteService.salvar(cliente);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(cliente);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody Login login){
+    public ResponseEntity<?> login(@Valid @RequestBody Login login){
 
-        Cliente clienteEncontrado = clienteService.buscarPoremail(login.getEmail());
+        Optional<Cliente> clienteEncontrado = clienteService.buscarPoremail(login.getEmail());
 
-        if(clienteEncontrado == null){
+        if(clienteEncontrado.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado");
         }
 
-        if(bCryptPasswordEncoder.matches(login.getSenha(), clienteEncontrado.getSenha())){
+        if(bCryptPasswordEncoder.matches(login.getSenha(), clienteEncontrado.get().getSenha())){
 
-            String token = tokenService.geraToken(clienteEncontrado);
+            String token = tokenService.geraToken(clienteEncontrado.get());
 
             return ResponseEntity.ok(token);
 
@@ -55,22 +55,41 @@ public class ClienteController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Cliente> obter(@PathVariable Long id, @RequestHeader String token){
+    public ResponseEntity<Cliente> obterPorId(@PathVariable Long id, @RequestHeader String token){
 
-        Cliente clienteEncontrado = clienteService.buscarPorId(id);
+        Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(id);
 
-        // Verifica se o token é válido
-        if (!tokenService.validarToken(token, clienteEncontrado.getEmail())) {
+        if(clienteEncontrado.isEmpty()){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token);
+        if (!tokenService.validarToken(token, clienteEncontrado.get().getEmail())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
-        HttpEntity<String> entity = new HttpEntity<>("{}", headers);
+        return ResponseEntity.ok(clienteEncontrado.get());
 
-        return ResponseEntity.ok(clienteEncontrado);
+    }
 
+    @PutMapping("/atualizar/{id}")
+    public ResponseEntity<?> atualizar(@PathVariable  Long id,
+                                             @Valid @RequestBody Cliente cliente,
+                                             @RequestHeader String token){
+
+        Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(id);
+
+        if(clienteEncontrado.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+
+        if (!tokenService.validarToken(token, clienteEncontrado.get().getEmail())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        cliente.setId(id);
+        clienteService.atualizar(cliente);
+
+        return ResponseEntity.status(HttpStatus.OK).body(cliente);
     }
 
 }
