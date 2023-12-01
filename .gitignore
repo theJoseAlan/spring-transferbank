@@ -24,6 +24,3 @@ hs_err_pid*
 replay_pid*
 
 .idea
-
-tb/src/main/java/com/spring/tb/domain/model/Endereco.java
-tb/pom.xml
