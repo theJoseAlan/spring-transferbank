@@ -4,6 +4,7 @@ import com.spring.tb.api.dto.ClienteDto;
 import com.spring.tb.api.model.Login;
 import com.spring.tb.domain.model.Cliente;
 import com.spring.tb.domain.services.ClienteService;
+import com.spring.tb.domain.services.EmailService;
 import com.spring.tb.domain.services.JwtTokenService;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
@@ -28,13 +29,18 @@ public class ClienteController {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private EmailService emailService;
+
     BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
     @PostMapping
     public ResponseEntity<ClienteDto> cadastrar(@Valid @RequestBody Cliente cliente){
 
-
         clienteService.salvar(cliente);
+
+        emailService.sendEmail(cliente.getEmail(), "TransferBank",
+                cliente.getNome()+" seu cadastro foi criado com suceso");
 
         ClienteDto clienteDto = modelMapper.map(cliente, ClienteDto.class);
 
@@ -63,19 +69,17 @@ public class ClienteController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Cliente> obterPorId(@PathVariable Long id, @RequestHeader String token){
+    public ResponseEntity<ClienteDto> obterPorId(@PathVariable Long id, @RequestHeader String token){
 
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(id);
 
-        if(clienteEncontrado.isEmpty()){
+        if(clienteEncontrado.isEmpty() || !tokenService.validarToken(token, clienteEncontrado.get().getEmail())){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        if (!tokenService.validarToken(token, clienteEncontrado.get().getEmail())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        ClienteDto clienteDto = modelMapper.map(clienteEncontrado.get(), ClienteDto.class);
 
-        return ResponseEntity.ok(clienteEncontrado.get());
+        return ResponseEntity.ok(clienteDto);
 
     }
 
