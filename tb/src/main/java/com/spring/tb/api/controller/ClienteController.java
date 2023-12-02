@@ -40,7 +40,7 @@ public class ClienteController {
         clienteService.salvar(cliente);
 
         emailService.sendEmail(cliente.getEmail(), "TransferBank",
-                cliente.getNome()+" seu cadastro foi criado com suceso");
+                cliente.getNome()+", seu cadastro foi criado com suceso");
 
         ClienteDto clienteDto = modelMapper.map(cliente, ClienteDto.class);
 
