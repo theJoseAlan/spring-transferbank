@@ -65,6 +65,10 @@ public class ClienteService {
         return clienteRepository.save(cliente);
     }
 
+    public void deletarPorId(Long id){
+        clienteRepository.deleteById(id);
+    }
+
     public Optional<Cliente> buscarPorId(Long id){
         return clienteRepository.findById(id);
     }

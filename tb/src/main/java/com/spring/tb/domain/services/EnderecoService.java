@@ -19,6 +19,10 @@ public class EnderecoService {
         return enderecoRepository.save(endereco);
     }
 
+    public void deletarEndereco(Long enderecoId){
+        enderecoRepository.deleteById(enderecoId);
+    }
+
     public Optional<Endereco> buscarPorClienteId(Long clienteId){
         return enderecoRepository.findByClienteId(clienteId);
     }

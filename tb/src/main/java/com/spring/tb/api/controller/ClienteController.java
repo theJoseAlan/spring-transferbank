@@ -3,8 +3,10 @@ package com.spring.tb.api.controller;
 import com.spring.tb.api.dto.ClienteDto;
 import com.spring.tb.api.model.Login;
 import com.spring.tb.domain.model.Cliente;
+import com.spring.tb.domain.model.Endereco;
 import com.spring.tb.domain.services.ClienteService;
 import com.spring.tb.domain.services.EmailService;
+import com.spring.tb.domain.services.EnderecoService;
 import com.spring.tb.domain.services.JwtTokenService;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
@@ -32,6 +34,9 @@ public class ClienteController {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private EnderecoService enderecoService;
+
     BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
     @PostMapping
@@ -39,8 +44,8 @@ public class ClienteController {
 
         clienteService.salvar(cliente);
 
-        emailService.sendEmail(cliente.getEmail(), "TransferBank",
-                cliente.getNome()+", seu cadastro foi criado com suceso");
+//        emailService.sendEmail(cliente.getEmail(), "Cadastro TransferBank",
+//                cliente.getNome()+", seu cadastro foi criado com suceso");
 
         ClienteDto clienteDto = modelMapper.map(cliente, ClienteDto.class);
 
@@ -102,6 +107,30 @@ public class ClienteController {
         clienteService.atualizar(cliente);
 
         return ResponseEntity.status(HttpStatus.OK).body("Cliente atualizado!");
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id,
+                                        @RequestHeader String token){
+
+        Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(id);
+        Optional<Endereco> enderecoEncontrado = enderecoService.buscarPorClienteId(id);
+
+        if(clienteEncontrado.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+
+        if (!tokenService.validarToken(token, clienteEncontrado.get().getEmail())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        if(enderecoEncontrado.isPresent()){
+            enderecoService.deletarEndereco(enderecoEncontrado.get().getId());
+        }
+
+        clienteService.deletarPorId(id);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 }
