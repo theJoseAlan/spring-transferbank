@@ -77,4 +77,24 @@ public class EnderecoController {
 
     }
 
+    @GetMapping("/{clienteId}")
+    public ResponseEntity<Endereco> buscarPorClienteId(@PathVariable Long clienteId,
+                                                       @RequestHeader String token){
+
+        Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
+
+        Optional<Endereco> enderecoEncontrado = enderecoService.buscarPorClienteId(clienteId);
+
+        if(clienteEncontrado.isEmpty() || !tokenService.validarToken(token, clienteEncontrado.get().getEmail())){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        if(enderecoEncontrado.isPresent()){
+            return ResponseEntity.status(HttpStatus.OK).body(enderecoEncontrado.get());
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+    }
+
 }
