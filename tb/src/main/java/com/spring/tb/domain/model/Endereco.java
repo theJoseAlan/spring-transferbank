@@ -1,6 +1,9 @@
 package com.spring.tb.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,20 +18,30 @@ public class Endereco {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //@NotBlank
+    @NotEmpty
+    @NotNull
     private String logradouro;
 
-    //@NotBlank
+    @NotEmpty
+    @NotNull
     private String numero;
 
-    //@NotBlank
     private String complemento;
 
-    //@NotBlank
+    @NotEmpty
+    @NotNull
     private String bairro;
 
+    @NotEmpty
+    @NotNull
     private String cidade;
 
+    @NotEmpty
+    @NotNull
     private String estado;
+
+    @JsonIgnore
+    @OneToOne
+    private Cliente cliente;
 
 }

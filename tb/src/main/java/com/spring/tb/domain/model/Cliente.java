@@ -41,9 +41,6 @@ public class Cliente {
     @NotNull
     private String senha;
 
-    @OneToOne
-    private Endereco endereco;
-
     public Cliente() {
     }
 }
