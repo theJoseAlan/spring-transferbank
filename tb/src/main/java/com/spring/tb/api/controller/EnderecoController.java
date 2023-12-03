@@ -1,5 +1,6 @@
 package com.spring.tb.api.controller;
 
+import com.spring.tb.domain.exception.NegocioException;
 import com.spring.tb.domain.model.Cliente;
 import com.spring.tb.domain.model.Endereco;
 import com.spring.tb.domain.services.ClienteService;
@@ -35,8 +36,12 @@ public class EnderecoController {
 
         Optional<Endereco> enderecoEncontrado = enderecoService.buscarPorClienteId(clienteId);
 
-        if(clienteEncontrado.isEmpty() || !tokenService.validarToken(token, clienteEncontrado.get().getEmail())){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        try{
+            if(clienteEncontrado.isEmpty() || !tokenService.validarToken(token, clienteEncontrado.get().getEmail())){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+        }catch (Exception ex){
+            throw new NegocioException("Faça o login para obter o token");
         }
 
         if(!enderecoEncontrado.isEmpty()){
@@ -60,8 +65,12 @@ public class EnderecoController {
 
         Optional<Endereco> enderecoEncontrado = enderecoService.buscarPorClienteId(clienteId);
 
-        if(clienteEncontrado.isEmpty() || !tokenService.validarToken(token, clienteEncontrado.get().getEmail())){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        try{
+            if(clienteEncontrado.isEmpty() || !tokenService.validarToken(token, clienteEncontrado.get().getEmail())){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+        }catch (Exception ex){
+            throw new NegocioException("Faça o login para obter o token");
         }
 
         if(enderecoEncontrado.isEmpty()){
@@ -85,8 +94,12 @@ public class EnderecoController {
 
         Optional<Endereco> enderecoEncontrado = enderecoService.buscarPorClienteId(clienteId);
 
-        if(clienteEncontrado.isEmpty() || !tokenService.validarToken(token, clienteEncontrado.get().getEmail())){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        try{
+            if(clienteEncontrado.isEmpty() || !tokenService.validarToken(token, clienteEncontrado.get().getEmail())){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+        }catch (Exception ex){
+            throw new NegocioException("Faça o login para obter o token");
         }
 
         if(enderecoEncontrado.isPresent()){
