@@ -49,6 +49,17 @@ public class ClienteService {
 
         Optional<Cliente> clienteExistenteByEmail = clienteRepository.findByEmail(cliente.getEmail());
 
+        /* Eu tenho consciência de que esse trecho de código é uma gambiarra,
+        * mas vou concertá-lo futuramente. Foi o que consegui fazer por hora
+        * para resolver  o problema da atualização de email duplicado. Abraço!
+        */
+        if(!clienteExistenteByEmail.isPresent() ){
+            String senhaCriptografada = bCryptPasswordEncoder.encode(cliente.getSenha());
+            cliente.setSenha(senhaCriptografada);
+
+            return clienteRepository.save(cliente);
+        }
+
         if (!clienteExistenteByEmail.get().getId().equals(cliente.getId())) {
             throw new NegocioException("Email já cadastrado");
         }

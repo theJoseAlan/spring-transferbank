@@ -1,20 +1,26 @@
 package com.spring.tb.domain.services;
 
+import com.spring.tb.domain.exception.NegocioException;
 import com.spring.tb.domain.model.Cliente;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.security.SecureRandom;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class JwtTokenService {
 
     SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+
+    @Autowired
+    private ClienteService clienteService;
 
     public String geraToken(Cliente cliente){
 
@@ -45,6 +51,19 @@ public class JwtTokenService {
 
         if (!claims.getSubject().equals(email)) {
             return false;
+        }
+
+        return true;
+    }
+
+    public boolean verificaToken(Optional<Cliente> cliente, String token){
+
+        try{
+            if(cliente.isEmpty() || !validarToken(token, cliente.get().getEmail())){
+                return false;
+            }
+        }catch (Exception ex){
+            throw new NegocioException("Faça o login para obter o token de acesso");
         }
 
         return true;
