@@ -22,8 +22,6 @@ public class ContaService {
     @Transactional
     public Conta abrirConta(Cliente cliente){
 
-
-
         Conta conta = new Conta();
 
         conta.setAgencia(123);
