@@ -72,4 +72,26 @@ public class ContaController {
 
     }
 
+    @GetMapping("/saldo/{clienteId}")
+    public ResponseEntity<?> consultarSaldo(@PathVariable Long clienteId,
+                                                 @RequestHeader String token){
+
+        Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
+        Optional<Conta> contaEncontrada = contaService.buscarPorClienteId(clienteId);
+
+        if(!tokenService.verificaToken(clienteEncontrado, token)){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        if(contaEncontrada.isEmpty()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Esse cliente não possui uma conta aberta!");
+        }
+
+        Double saldo =  contaService.consultarSaldo(clienteId);
+
+        return ResponseEntity.ok(saldo);
+
+    }
+
 }

@@ -38,4 +38,12 @@ public class ContaService {
         return contaRepository.findByClienteId(clienteId);
     }
 
+    public Double consultarSaldo(Long clienteId){
+
+        Optional<Conta> contaEncontrada = contaRepository.findByClienteId(clienteId);
+
+        return contaEncontrada.get().getSaldo();
+
+    }
+
 }
