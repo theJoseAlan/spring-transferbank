@@ -1,8 +1,10 @@
 package com.spring.tb.api.controller;
 
 import com.spring.tb.api.dto.ContaDto;
+import com.spring.tb.api.model.DepositoRequest;
 import com.spring.tb.domain.model.Cliente;
 import com.spring.tb.domain.model.Conta;
+import com.spring.tb.domain.repository.ContaRepository;
 import com.spring.tb.domain.services.ClienteService;
 import com.spring.tb.domain.services.ContaService;
 import com.spring.tb.domain.services.JwtTokenService;
@@ -29,6 +31,9 @@ public class ContaController {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private ContaRepository contaRepository;
 
     @PostMapping("/{clienteId}")
     public ResponseEntity<?> cadastrar(@PathVariable Long clienteId, @RequestHeader String token){
@@ -88,10 +93,30 @@ public class ContaController {
                     .body("Esse cliente não possui uma conta aberta!");
         }
 
-        Double saldo =  contaService.consultarSaldo(clienteId);
+        Float saldo =  contaService.consultarSaldo(clienteId);
 
         return ResponseEntity.ok(saldo);
 
     }
 
+    @PutMapping("/{clienteId}")
+    public ResponseEntity<?> depositar(@PathVariable Long clienteId,
+                                             @RequestHeader String token,
+                                             @RequestBody DepositoRequest depositoRequest){
+
+        Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
+
+        if(!tokenService.verificaToken(clienteEncontrado, token)){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        if(!contaService.existeContaPorNumero(depositoRequest.getNroconta())){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Conta não encontrada. Verifique os dados e tente novamente!");
+        }
+
+        contaService.depositar(depositoRequest.getNroconta(), depositoRequest.getValor());
+
+        return ResponseEntity.ok().body("Depósito realizado com sucesso");
+    }
 }

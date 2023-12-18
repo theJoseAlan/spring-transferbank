@@ -20,7 +20,7 @@ public class Conta {
 
     private int numero;
 
-    private Double saldo;
+    private Float saldo;
 
     @JsonIgnore
     @OneToOne
