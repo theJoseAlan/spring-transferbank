@@ -23,6 +23,9 @@ public class ContaService {
     @Autowired
     private ExtratoRepository extratoRepository;
 
+    @Autowired
+    private ClienteService clienteService;
+
     Random random = new Random();
 
     @Transactional
@@ -52,7 +55,7 @@ public class ContaService {
 
     }
 
-    public void depositar(int numeroConta, Float valor){
+    public void depositar(Cliente cliente, int numeroConta, Float valor){
 
         Optional<Conta> contaEncontrada = contaRepository.findByNumero(numeroConta);
 
@@ -70,6 +73,7 @@ public class ContaService {
         extrato.setTipo("Deposito");
         extrato.setData(OffsetDateTime.now());
         extrato.setValor(valor);
+        extrato.setCliente(cliente);
 
         extratoRepository.save(extrato);
 
@@ -107,6 +111,7 @@ public class ContaService {
         extrato.setTipo("Saque");
         extrato.setData(OffsetDateTime.now());
         extrato.setValor(valor);
+        extrato.setCliente(contaEncontrada.get().getCliente());
 
         extratoRepository.save(extrato);
 

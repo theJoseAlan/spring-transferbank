@@ -1,9 +1,6 @@
 package com.spring.tb.domain.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +25,9 @@ public class Extrato {
     private Float valor;
 
     private OffsetDateTime data;
+
+    @OneToOne
+    private Cliente cliente;
 
     public Extrato() {
     }

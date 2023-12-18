@@ -115,7 +115,7 @@ public class ContaController {
                     .body("Conta não encontrada. Verifique os dados e tente novamente!");
         }
 
-        contaService.depositar(contaRequest.getNroconta(), contaRequest.getValor());
+        contaService.depositar(clienteEncontrado.get(), contaRequest.getNroconta(), contaRequest.getValor());
 
         return ResponseEntity.ok().body("Depósito realizado com sucesso!");
     }
