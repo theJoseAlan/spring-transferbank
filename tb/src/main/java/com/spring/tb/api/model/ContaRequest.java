@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class DepositoRequest {
+public class ContaRequest {
 
     private int agencia;
 

@@ -1,7 +1,7 @@
 package com.spring.tb.api.controller;
 
 import com.spring.tb.api.dto.ContaDto;
-import com.spring.tb.api.model.DepositoRequest;
+import com.spring.tb.api.model.ContaRequest;
 import com.spring.tb.domain.model.Cliente;
 import com.spring.tb.domain.model.Conta;
 import com.spring.tb.domain.repository.ContaRepository;
@@ -102,7 +102,7 @@ public class ContaController {
     @PutMapping("/{clienteId}")
     public ResponseEntity<?> depositar(@PathVariable Long clienteId,
                                              @RequestHeader String token,
-                                             @RequestBody DepositoRequest depositoRequest){
+                                             @RequestBody ContaRequest contaRequest){
 
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
 
@@ -110,13 +110,30 @@ public class ContaController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        if(!contaService.existeContaPorNumero(depositoRequest.getNroconta())){
+        if(!contaService.existeContaPorNumero(contaRequest.getNroconta())){
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Conta não encontrada. Verifique os dados e tente novamente!");
         }
 
-        contaService.depositar(depositoRequest.getNroconta(), depositoRequest.getValor());
+        contaService.depositar(contaRequest.getNroconta(), contaRequest.getValor());
 
-        return ResponseEntity.ok().body("Depósito realizado com sucesso");
+        return ResponseEntity.ok().body("Depósito realizado com sucesso!");
+    }
+
+    @PutMapping("/sacar/{clienteId}")
+    public ResponseEntity<?> sacar(@PathVariable Long clienteId,
+                                   @RequestHeader String token,
+                                   @RequestBody ContaRequest contaRequest){
+
+        Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
+
+        if(!tokenService.verificaToken(clienteEncontrado, token)){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        contaService.sacar(clienteId, contaRequest.getValor());
+
+        return ResponseEntity.ok().body("Saque realizado com sucesso!");
+
     }
 }

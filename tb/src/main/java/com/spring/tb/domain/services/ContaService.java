@@ -85,4 +85,31 @@ public class ContaService {
 
     }
 
+    public void sacar(Long clienteId, Float valor){
+
+        Optional<Conta> contaEncontrada = contaRepository.findByClienteId(clienteId);
+
+        if(!contaEncontrada.isPresent()){
+            throw new NegocioException("Conta não encontrada");
+        }
+
+        if(valor > contaEncontrada.get().getSaldo()){
+            throw new NegocioException("Saldo insuficiente");
+        }
+
+        Float valorSaque = contaEncontrada.get().getSaldo() - valor;
+
+        contaEncontrada.get().setSaldo(valorSaque);
+
+        contaRepository.save(contaEncontrada.get());
+
+        Extrato extrato = new Extrato();
+        extrato.setTipo("Saque");
+        extrato.setData(OffsetDateTime.now());
+        extrato.setValor(valor);
+
+        extratoRepository.save(extrato);
+
+    }
+
 }
