@@ -15,7 +15,6 @@ import java.time.OffsetDateTime;
 @AllArgsConstructor
 public class Extrato {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,6 +24,8 @@ public class Extrato {
     private Float valor;
 
     private OffsetDateTime data;
+
+    private String nomeClienteDestino;
 
     @OneToOne
     private Cliente cliente;

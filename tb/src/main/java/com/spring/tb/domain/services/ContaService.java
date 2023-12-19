@@ -3,14 +3,11 @@ package com.spring.tb.domain.services;
 import com.spring.tb.domain.exception.NegocioException;
 import com.spring.tb.domain.model.Cliente;
 import com.spring.tb.domain.model.Conta;
-import com.spring.tb.domain.model.Extrato;
 import com.spring.tb.domain.repository.ContaRepository;
-import com.spring.tb.domain.repository.ExtratoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.Random;
 
@@ -21,17 +18,13 @@ public class ContaService {
     private ContaRepository contaRepository;
 
     @Autowired
-    private ExtratoRepository extratoRepository;
-
-    @Autowired
-    private ClienteService clienteService;
-
-    Random random = new Random();
+    private ExtratoService extratoService;
 
     @Transactional
     public Conta abrirConta(Cliente cliente){
 
         Conta conta = new Conta();
+        Random random = new Random();
 
         conta.setAgencia(123);
         conta.setNumero(random.nextInt(100, 999));
@@ -69,13 +62,7 @@ public class ContaService {
 
         contaRepository.save(contaEncontrada.get());
 
-        Extrato extrato = new Extrato();
-        extrato.setTipo("Deposito");
-        extrato.setData(OffsetDateTime.now());
-        extrato.setValor(valor);
-        extrato.setCliente(cliente);
-
-        extratoRepository.save(extrato);
+        extratoService.geraExtratoDeposito(cliente, numeroConta, valor);
 
     }
 
@@ -107,13 +94,7 @@ public class ContaService {
 
         contaRepository.save(contaEncontrada.get());
 
-        Extrato extrato = new Extrato();
-        extrato.setTipo("Saque");
-        extrato.setData(OffsetDateTime.now());
-        extrato.setValor(valor);
-        extrato.setCliente(contaEncontrada.get().getCliente());
-
-        extratoRepository.save(extrato);
+        extratoService.geraExtratoSaque(contaEncontrada.get().getCliente(), valor);
 
     }
 
