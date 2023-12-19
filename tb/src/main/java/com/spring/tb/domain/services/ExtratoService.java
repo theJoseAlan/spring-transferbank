@@ -5,6 +5,7 @@ import com.spring.tb.domain.model.Conta;
 import com.spring.tb.domain.model.Extrato;
 import com.spring.tb.domain.repository.ContaRepository;
 import com.spring.tb.domain.repository.ExtratoRepository;
+import jakarta.transaction.TransactionScoped;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -57,6 +58,23 @@ public class ExtratoService {
         extrato.setCliente(cliente);
 
         extratoRepository.save(extrato);
+    }
+
+    @TransactionScoped
+    public void geraExtratoTransferencia(int nroContaOrigem, int nroContaDestino, Float valor){
+
+        Optional<Conta> contaOrigem = contaRepository.findByNumero(nroContaOrigem);
+        Optional<Conta> contaDestino = contaRepository.findByNumero(nroContaDestino);
+
+        Extrato extrato = new Extrato();
+        extrato.setTipo("Transferência");
+        extrato.setData(OffsetDateTime.now());
+        extrato.setValor(valor);
+        extrato.setNomeClienteDestino(contaDestino.get().getCliente().getNome());
+        extrato.setCliente(contaOrigem.get().getCliente());
+
+        extratoRepository.save(extrato);
+
     }
 
     public List<Extrato> listarPorTipo(String tipo){

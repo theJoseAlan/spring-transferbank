@@ -132,4 +132,21 @@ public class ContaController {
         return ResponseEntity.ok().body("Saque realizado com sucesso!");
 
     }
+
+    @PostMapping("/transferir/{clienteId}")
+    public ResponseEntity<?> transferir(@PathVariable Long clienteId,
+                                        @RequestHeader String token,
+                                        @RequestBody ContaRequest contaRequest){
+
+        Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
+
+        if(!tokenService.verificaToken(clienteEncontrado, token)){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        contaService.transferir(clienteEncontrado.get(), contaRequest.getNroconta(), contaRequest.getValor());
+
+        return ResponseEntity.ok("Transferência realizada com sucesso");
+
+    }
 }

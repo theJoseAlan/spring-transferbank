@@ -44,6 +44,10 @@ public class ContaService {
 
         Optional<Conta> contaEncontrada = contaRepository.findByClienteId(clienteId);
 
+        if(!contaEncontrada.isPresent()){
+            throw new NegocioException("Conta não encontrada");
+        }
+
         return contaEncontrada.get().getSaldo();
 
     }
@@ -98,4 +102,34 @@ public class ContaService {
 
     }
 
+    public void transferir(Cliente cliente, int nroContaDestino, Float valor){
+
+        Optional<Conta> contaOrigem = contaRepository.findByClienteId(cliente.getId());
+
+        Optional<Conta> contaDestino = contaRepository.findByNumero(nroContaDestino);
+
+        if(contaDestino.get() == contaDestino.get()){
+            throw new NegocioException("Não é possível transferir para sua própria conta!");
+        }
+
+        if(!contaOrigem.isPresent() || !contaDestino.isPresent()){
+            throw new NegocioException("Sua conta ou destinatário não foi encontrado!");
+        }
+
+        if(valor > contaOrigem.get().getSaldo()){
+            throw new NegocioException("Saldo insuficiente");
+        }
+
+        Float saldoContaOrigem = contaOrigem.get().getSaldo() - valor;
+        Float saldoContaDestino = contaDestino.get().getSaldo() + valor;
+
+        contaOrigem.get().setSaldo(saldoContaOrigem);
+        contaDestino.get().setSaldo(saldoContaDestino);
+
+        contaRepository.save(contaOrigem.get());
+        contaRepository.save(contaDestino.get());
+
+        extratoService.geraExtratoTransferencia(contaOrigem.get().getNumero(), nroContaDestino, valor);
+
+    }
 }
