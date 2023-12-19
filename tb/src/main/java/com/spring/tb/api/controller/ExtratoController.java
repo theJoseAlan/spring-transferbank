@@ -2,7 +2,7 @@ package com.spring.tb.api.controller;
 
 import com.spring.tb.api.assembler.ExtratoAssembler;
 import com.spring.tb.api.model.ExtratoInput;
-import com.spring.tb.api.model.ExtratoResponse;
+import com.spring.tb.api.dto.ExtratoDto;
 import com.spring.tb.domain.model.Cliente;
 import com.spring.tb.domain.model.Extrato;
 import com.spring.tb.domain.services.ClienteService;
@@ -33,8 +33,8 @@ public class ExtratoController {
     private ExtratoAssembler extratoAssembler;
 
     @GetMapping("/{clienteId}")
-    public ResponseEntity<List<ExtratoResponse>> listar(@PathVariable Long clienteId,
-                                        @RequestHeader String token){
+    public ResponseEntity<List<ExtratoDto>> listar(@PathVariable Long clienteId,
+                                                   @RequestHeader String token){
 
         List<Extrato> listaDeExtratosPorCliente = extratoService.listarPorCliente(clienteId);
 
@@ -44,14 +44,14 @@ public class ExtratoController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        List<ExtratoResponse> extratos = extratoAssembler.toList(listaDeExtratosPorCliente);
+        List<ExtratoDto> extratos = extratoAssembler.toList(listaDeExtratosPorCliente);
 
         return ResponseEntity.ok(extratos);
 
     }
 
     @GetMapping("/tipo/{clienteId}")
-    public ResponseEntity<List<Extrato>> listarPorTipo(@PathVariable Long clienteId,
+    public ResponseEntity<List<ExtratoDto>> listarPorTipo(@PathVariable Long clienteId,
                                                  @RequestHeader String token,
                                                  @RequestBody ExtratoInput extratoInput){
 
@@ -63,9 +63,9 @@ public class ExtratoController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        //ExtratoResponse extratos = extratoAssembler.toModel(listaDeExtratosPorTipo.get());
+        List<ExtratoDto> listaDeExtratos = extratoAssembler.toList(extratos);
 
-        return ResponseEntity.ok(extratos);
+        return ResponseEntity.ok(listaDeExtratos);
 
     }
 

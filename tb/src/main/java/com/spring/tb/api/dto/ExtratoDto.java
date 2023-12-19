@@ -1,4 +1,4 @@
-package com.spring.tb.api.model;
+package com.spring.tb.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import java.time.OffsetDateTime;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ExtratoResponse {
+public class ExtratoDto {
 
     private String tipo;
 

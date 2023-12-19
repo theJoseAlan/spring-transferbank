@@ -4,7 +4,6 @@ import com.spring.tb.api.dto.ContaDto;
 import com.spring.tb.api.model.ContaRequest;
 import com.spring.tb.domain.model.Cliente;
 import com.spring.tb.domain.model.Conta;
-import com.spring.tb.domain.repository.ContaRepository;
 import com.spring.tb.domain.services.ClienteService;
 import com.spring.tb.domain.services.ContaService;
 import com.spring.tb.domain.services.JwtTokenService;
@@ -31,9 +30,6 @@ public class ContaController {
 
     @Autowired
     private ModelMapper modelMapper;
-
-    @Autowired
-    private ContaRepository contaRepository;
 
     @PostMapping("/{clienteId}")
     public ResponseEntity<?> cadastrar(@PathVariable Long clienteId, @RequestHeader String token){

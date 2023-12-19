@@ -1,6 +1,6 @@
 package com.spring.tb.api.assembler;
 
-import com.spring.tb.api.model.ExtratoResponse;
+import com.spring.tb.api.dto.ExtratoDto;
 import com.spring.tb.domain.model.Extrato;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -15,11 +15,11 @@ public class ExtratoAssembler {
 
     private ModelMapper modelMapper;
 
-    public ExtratoResponse toModel(Extrato extrato){
-        return modelMapper.map(extrato, ExtratoResponse.class);
+    public ExtratoDto toModel(Extrato extrato){
+        return modelMapper.map(extrato, ExtratoDto.class);
     }
 
-    public List<ExtratoResponse> toList(List<Extrato> extratos){
+    public List<ExtratoDto> toList(List<Extrato> extratos){
         return extratos.stream()
                 .map(this::toModel)
                 .collect(Collectors.toList());
