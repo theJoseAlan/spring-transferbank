@@ -55,13 +55,14 @@ public class ExtratoController {
                                                  @RequestHeader String token,
                                                  @RequestBody ExtratoInput extratoInput){
 
-        List<Extrato> extratos = extratoService.listarPorTipo(extratoInput.getTipo());
-
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
 
         if(!tokenService.verificaToken(clienteEncontrado, token)){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+
+        List<Extrato> extratos = extratoService
+                .listarPorTipo(extratoInput.getTipo(), clienteEncontrado.get().getId());
 
         List<ExtratoDto> listaDeExtratos = extratoAssembler.toList(extratos);
 

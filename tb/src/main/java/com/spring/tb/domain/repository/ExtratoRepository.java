@@ -11,6 +11,6 @@ public interface ExtratoRepository extends JpaRepository<Extrato, Long> {
 
     List<Extrato> findAllByClienteId(Long clienteId);
 
-    List<Extrato> findAllByTipo(String tipo);
+    List<Extrato> findAllByTipoAndClienteId(String tipo, Long clienteId);
 
 }

@@ -77,8 +77,8 @@ public class ExtratoService {
 
     }
 
-    public List<Extrato> listarPorTipo(String tipo){
-        return extratoRepository.findAllByTipo(tipo);
+    public List<Extrato> listarPorTipo(String tipo, Long clienteId){
+        return extratoRepository.findAllByTipoAndClienteId(tipo, clienteId);
     }
 
 }
