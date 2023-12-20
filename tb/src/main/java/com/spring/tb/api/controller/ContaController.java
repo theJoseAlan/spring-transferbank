@@ -56,16 +56,14 @@ public class ContaController {
                                                    @RequestHeader String token){
 
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
-        Optional<Conta> contaEncontrada = contaService.buscarPorClienteId(clienteId);
 
         if(!tokenService.verificaToken(clienteEncontrado, token)){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        if(contaEncontrada.isEmpty()){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Esse cliente não possui uma conta aberta!");
-        }
+        Optional<Conta> contaEncontrada = contaService.buscarPorClienteId(clienteId);
+
+        contaService.verificaConta(clienteId);
 
         ContaDto contaDto = modelMapper.map(contaEncontrada.get(), ContaDto.class);
 
@@ -78,16 +76,12 @@ public class ContaController {
                                                  @RequestHeader String token){
 
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
-        Optional<Conta> contaEncontrada = contaService.buscarPorClienteId(clienteId);
 
         if(!tokenService.verificaToken(clienteEncontrado, token)){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        if(contaEncontrada.isEmpty()){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Esse cliente não possui uma conta aberta!");
-        }
+        contaService.verificaConta(clienteId);
 
         Float saldo =  contaService.consultarSaldo(clienteId);
 
@@ -105,6 +99,8 @@ public class ContaController {
         if(!tokenService.verificaToken(clienteEncontrado, token)){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+
+        contaService.verificaConta(clienteId);
 
         contaService.depositar(clienteEncontrado.get(), contaRequest.getNroconta(), contaRequest.getValor());
 
@@ -138,6 +134,8 @@ public class ContaController {
         if(!tokenService.verificaToken(clienteEncontrado, token)){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+
+        contaService.verificaConta(clienteId);
 
         contaService.transferir(clienteEncontrado.get(), contaRequest.getNroconta(), contaRequest.getValor());
 

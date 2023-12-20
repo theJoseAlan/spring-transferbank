@@ -1,5 +1,6 @@
 package com.spring.tb.domain.services;
 
+import com.spring.tb.domain.exception.NegocioException;
 import com.spring.tb.domain.model.Endereco;
 import com.spring.tb.domain.repository.EnderecoRepository;
 import lombok.AllArgsConstructor;
@@ -23,12 +24,18 @@ public class EnderecoService {
         enderecoRepository.deleteById(enderecoId);
     }
 
-    public Optional<Endereco> obterEnderecoPorCliente(Long clienteId){
+    public Optional<Endereco> buscarPorClienteId(Long clienteId){
         return enderecoRepository.findByClienteId(clienteId);
     }
 
-    public Optional<Endereco> buscarPorClienteId(Long clienteId){
-        return enderecoRepository.findByClienteId(clienteId);
+    public void verificaEndereco(Long clienteId){
+
+        Optional<Endereco> enderecoEncontrado = enderecoRepository.findByClienteId(clienteId);
+
+        if(!enderecoEncontrado.isPresent()){
+            throw new NegocioException("Você ainda não possui um endereco cadastrado!");
+        }
+
     }
 
 }

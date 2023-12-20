@@ -1,6 +1,5 @@
 package com.spring.tb.api.controller;
 
-import com.spring.tb.domain.exception.NegocioException;
 import com.spring.tb.domain.model.Cliente;
 import com.spring.tb.domain.model.Endereco;
 import com.spring.tb.domain.services.ClienteService;
@@ -34,15 +33,9 @@ public class EnderecoController {
 
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
 
-        Optional<Endereco> enderecoEncontrado = enderecoService.buscarPorClienteId(clienteId);
+        tokenService.verificaToken(clienteEncontrado, token);
 
-        try{
-            if(clienteEncontrado.isEmpty() || !tokenService.validarToken(token, clienteEncontrado.get().getEmail())){
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
-        }catch (Exception ex){
-            throw new NegocioException("Faça o login para obter o token");
-        }
+        Optional<Endereco> enderecoEncontrado = enderecoService.buscarPorClienteId(clienteId);
 
         if(!enderecoEncontrado.isEmpty()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -63,20 +56,11 @@ public class EnderecoController {
 
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
 
+        tokenService.verificaToken(clienteEncontrado, token);
+
         Optional<Endereco> enderecoEncontrado = enderecoService.buscarPorClienteId(clienteId);
 
-        try{
-            if(clienteEncontrado.isEmpty() || !tokenService.validarToken(token, clienteEncontrado.get().getEmail())){
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
-        }catch (Exception ex){
-            throw new NegocioException("Faça o login para obter o token");
-        }
-
-        if(enderecoEncontrado.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Endereco não encontrado");
-        }
+        enderecoService.verificaEndereco(clienteId);
 
         endereco.setId(enderecoEncontrado.get().getId());
         endereco.setCliente(clienteEncontrado.get());
@@ -92,15 +76,10 @@ public class EnderecoController {
 
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
 
-        Optional<Endereco> enderecoEncontrado = enderecoService.buscarPorClienteId(clienteId);
 
-        try{
-            if(clienteEncontrado.isEmpty() || !tokenService.validarToken(token, clienteEncontrado.get().getEmail())){
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
-        }catch (Exception ex){
-            throw new NegocioException("Faça o login para obter o token");
-        }
+        tokenService.verificaToken(clienteEncontrado, token);
+
+        Optional<Endereco> enderecoEncontrado = enderecoService.buscarPorClienteId(clienteId);
 
         if(enderecoEncontrado.isPresent()){
             return ResponseEntity.status(HttpStatus.OK).body(enderecoEncontrado.get());

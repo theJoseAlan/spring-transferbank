@@ -21,8 +21,13 @@ public class ContaService {
     @Autowired
     private ExtratoService extratoService;
 
+    @Autowired
+    private EnderecoService enderecoService;
+
     @Transactional
     public Conta abrirConta(Cliente cliente){
+
+        enderecoService.verificaEndereco(cliente.getId());
 
         Conta conta = new Conta();
         Random random = new Random();
@@ -122,5 +127,13 @@ public class ContaService {
 
         extratoService.geraExtratoTransferencia(contaOrigem.get().getNumero(), nroContaDestino, valor);
 
+    }
+
+    public void verificaConta(Long clienteId){
+        Optional<Conta> contaEncontrada = contaRepository.findByClienteId(clienteId);
+
+        if(contaEncontrada.isEmpty()){
+            throw new NegocioException("Você não possui uma conta aberta!");
+        }
     }
 }
