@@ -106,11 +106,6 @@ public class ContaController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        if(!contaService.existeContaPorNumero(contaRequest.getNroconta())){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Conta não encontrada. Verifique os dados e tente novamente!");
-        }
-
         contaService.depositar(clienteEncontrado.get(), contaRequest.getNroconta(), contaRequest.getValor());
 
         return ResponseEntity.ok().body("Depósito realizado com sucesso!");

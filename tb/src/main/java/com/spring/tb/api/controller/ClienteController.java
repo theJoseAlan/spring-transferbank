@@ -89,7 +89,7 @@ public class ClienteController {
     }
 
     @PutMapping("/atualizar/{id}")
-    public ResponseEntity<?> atualizar(@PathVariable  Long id,
+    public ResponseEntity<?> atualizar(@PathVariable Long id,
                                              @Valid @RequestBody Cliente cliente,
                                              @RequestHeader String token){
 

@@ -1,5 +1,6 @@
 package com.spring.tb.domain.services;
 
+import com.spring.tb.domain.exception.EntidadeNaoEncontradaException;
 import com.spring.tb.domain.exception.NegocioException;
 import com.spring.tb.domain.model.Cliente;
 import com.spring.tb.domain.model.Conta;
@@ -57,7 +58,7 @@ public class ContaService {
         Optional<Conta> contaEncontrada = contaRepository.findByNumero(numeroConta);
 
         if(!contaEncontrada.isPresent()){
-            throw new NegocioException("Conta não encontrada");
+            throw new EntidadeNaoEncontradaException("Conta não encontrada");
         }
 
         Float valorDeposito = contaEncontrada.get().getSaldo() + valor;
@@ -70,22 +71,12 @@ public class ContaService {
 
     }
 
-    public boolean existeContaPorNumero(int numero){
-
-        if(contaRepository.findByNumero(numero).isPresent()){
-            return true;
-        }
-
-        return false;
-
-    }
-
     public void sacar(Long clienteId, Float valor){
 
         Optional<Conta> contaEncontrada = contaRepository.findByClienteId(clienteId);
 
         if(!contaEncontrada.isPresent()){
-            throw new NegocioException("Conta não encontrada");
+            throw new EntidadeNaoEncontradaException("Conta não encontrada");
         }
 
         if(valor > contaEncontrada.get().getSaldo()){
@@ -113,7 +104,7 @@ public class ContaService {
         }
 
         if(!contaOrigem.isPresent() || !contaDestino.isPresent()){
-            throw new NegocioException("Sua conta ou destinatário não foi encontrado!");
+            throw new EntidadeNaoEncontradaException("Sua conta ou destinatário não foi encontrado!");
         }
 
         if(valor > contaOrigem.get().getSaldo()){
