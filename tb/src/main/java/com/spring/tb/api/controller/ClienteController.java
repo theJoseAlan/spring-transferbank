@@ -9,35 +9,28 @@ import com.spring.tb.domain.services.EmailService;
 import com.spring.tb.domain.services.EnderecoService;
 import com.spring.tb.domain.services.JwtTokenService;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/cliente")
+@AllArgsConstructor
 public class ClienteController {
 
-    @Autowired
     private ClienteService clienteService;
 
-    @Autowired
     private JwtTokenService tokenService;
 
-    @Autowired
     private ModelMapper modelMapper;
 
-    @Autowired
     private EmailService emailService;
 
-    @Autowired
     private EnderecoService enderecoService;
-
-    BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
     @PostMapping
     public ResponseEntity<ClienteDto> cadastrar(@Valid @RequestBody Cliente cliente){
@@ -57,19 +50,7 @@ public class ClienteController {
 
         Optional<Cliente> clienteEncontrado = clienteService.buscarPoremail(login.getEmail());
 
-        if(clienteEncontrado.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado");
-        }
-
-        if(bCryptPasswordEncoder.matches(login.getSenha(), clienteEncontrado.get().getSenha())){
-
-            String token = tokenService.geraToken(clienteEncontrado.get());
-
-            return ResponseEntity.ok(token);
-
-        }
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email ou senha incorreto");
+        return ResponseEntity.ok(tokenService.geraTokenLogin(login.getSenha(), clienteEncontrado.get()));
 
     }
 

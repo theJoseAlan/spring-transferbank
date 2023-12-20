@@ -1,12 +1,13 @@
 package com.spring.tb.domain.services;
 
+import com.spring.tb.domain.exception.LoginNaoAutorizadoException;
 import com.spring.tb.domain.exception.NegocioException;
 import com.spring.tb.domain.model.Cliente;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -19,8 +20,6 @@ public class JwtTokenService {
 
     SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
-    @Autowired
-    private ClienteService clienteService;
 
     public String geraToken(Cliente cliente){
 
@@ -68,5 +67,19 @@ public class JwtTokenService {
 
         return true;
     }
+
+    public String geraTokenLogin(String senhaInput, Cliente cliente){
+
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+
+        if(bCryptPasswordEncoder.matches(senhaInput, cliente.getSenha())){
+
+            return geraToken(cliente);
+
+        }else{
+            throw new LoginNaoAutorizadoException("Senha ou email incorreto!");
+        }
+    }
+
 
 }

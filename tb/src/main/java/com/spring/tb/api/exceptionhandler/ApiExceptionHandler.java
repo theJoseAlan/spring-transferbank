@@ -1,6 +1,7 @@
 package com.spring.tb.api.exceptionhandler;
 
 import com.spring.tb.domain.exception.EntidadeNaoEncontradaException;
+import com.spring.tb.domain.exception.LoginNaoAutorizadoException;
 import com.spring.tb.domain.exception.NegocioException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -65,6 +66,20 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleEntidadeNaoEncontada(NegocioException ex, WebRequest request){
 
         HttpStatus status = HttpStatus.NOT_FOUND;
+
+        Problema problema = new Problema();
+        problema.setStatus(status.value());
+        problema.setDataHora(LocalDateTime.now());
+        problema.setTitulo(ex.getMessage());
+
+        //exception, body, headers, status e request
+        return handleExceptionInternal(ex, problema, new HttpHeaders(), status, request);
+    }
+
+    @ExceptionHandler(LoginNaoAutorizadoException.class)
+    public ResponseEntity<Object> handleLoginNaoAutorizado(NegocioException ex, WebRequest request){
+
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
 
         Problema problema = new Problema();
         problema.setStatus(status.value());
