@@ -8,6 +8,7 @@ import com.spring.tb.domain.model.Extrato;
 import com.spring.tb.domain.services.ClienteService;
 import com.spring.tb.domain.services.ExtratoService;
 import com.spring.tb.domain.services.JwtTokenService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,23 +19,22 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/extrato")
+@AllArgsConstructor
 public class ExtratoController {
 
-    @Autowired
     private ClienteService clienteService;
 
     @Autowired
     private JwtTokenService tokenService;
 
-    @Autowired
     private ExtratoService extratoService;
 
-    @Autowired
     private ExtratoAssembler extratoAssembler;
 
-    @GetMapping("/{clienteId}")
-    public ResponseEntity<List<ExtratoDto>> listar(@PathVariable Long clienteId,
-                                                   @RequestHeader String token){
+    @GetMapping
+    public ResponseEntity<List<ExtratoDto>> listar(@RequestHeader String token){
+
+        Long clienteId = tokenService.obterIdPorToken(token);
 
         List<Extrato> listaDeExtratosPorCliente = extratoService.listarPorCliente(clienteId);
 
@@ -50,10 +50,11 @@ public class ExtratoController {
 
     }
 
-    @GetMapping("/tipo/{clienteId}")
-    public ResponseEntity<List<ExtratoDto>> listarPorTipo(@PathVariable Long clienteId,
-                                                 @RequestHeader String token,
+    @GetMapping("/tipo")
+    public ResponseEntity<List<ExtratoDto>> listarPorTipo(@RequestHeader String token,
                                                  @RequestBody ExtratoInput extratoInput){
+
+        Long clienteId = tokenService.obterIdPorToken(token);
 
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
 

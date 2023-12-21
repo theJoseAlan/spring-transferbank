@@ -7,6 +7,7 @@ import com.spring.tb.domain.model.Conta;
 import com.spring.tb.domain.services.ClienteService;
 import com.spring.tb.domain.services.ContaService;
 import com.spring.tb.domain.services.JwtTokenService;
+import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,22 +18,22 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/conta")
+@AllArgsConstructor
 public class ContaController {
 
-    @Autowired
     private ContaService contaService;
 
-    @Autowired
     private ClienteService clienteService;
 
     @Autowired
     private JwtTokenService tokenService;
 
-    @Autowired
     private ModelMapper modelMapper;
 
-    @PostMapping("/{clienteId}")
-    public ResponseEntity<?> cadastrar(@PathVariable Long clienteId, @RequestHeader String token){
+    @PostMapping
+    public ResponseEntity<?> cadastrar(@RequestHeader String token){
+
+        Long clienteId = tokenService.obterIdPorToken(token);
 
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
         Optional<Conta> contaEncontrada = contaService.buscarPorClienteId(clienteId);
@@ -51,9 +52,10 @@ public class ContaController {
         return ResponseEntity.status(HttpStatus.OK).body(contaAberta);
     }
 
-    @GetMapping("/{clienteId}")
-    public ResponseEntity<?> obterDadosDaConta(@PathVariable Long clienteId,
-                                                   @RequestHeader String token){
+    @GetMapping
+    public ResponseEntity<?> obterDadosDaConta(@RequestHeader String token){
+
+        Long clienteId = tokenService.obterIdPorToken(token);
 
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
 
@@ -67,13 +69,14 @@ public class ContaController {
 
         ContaDto contaDto = modelMapper.map(contaEncontrada.get(), ContaDto.class);
 
-        return ResponseEntity.status(HttpStatus.OK).body(contaDto);
+        return ResponseEntity.ok(contaDto);
 
     }
 
-    @GetMapping("/saldo/{clienteId}")
-    public ResponseEntity<?> consultarSaldo(@PathVariable Long clienteId,
-                                                 @RequestHeader String token){
+    @GetMapping("/saldo")
+    public ResponseEntity<?> consultarSaldo(@RequestHeader String token){
+
+        Long clienteId = tokenService.obterIdPorToken(token);
 
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
 
@@ -89,10 +92,11 @@ public class ContaController {
 
     }
 
-    @PutMapping("/{clienteId}")
-    public ResponseEntity<?> depositar(@PathVariable Long clienteId,
-                                             @RequestHeader String token,
+    @PutMapping
+    public ResponseEntity<?> depositar(@RequestHeader String token,
                                              @RequestBody ContaRequest contaRequest){
+
+        Long clienteId = tokenService.obterIdPorToken(token);
 
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
 
@@ -102,15 +106,16 @@ public class ContaController {
 
         contaService.verificaConta(clienteId);
 
-        contaService.depositar(clienteEncontrado.get(), contaRequest.getNroconta(), contaRequest.getValor());
+        contaService.depositar(clienteEncontrado.get(), contaRequest.getNumero(), contaRequest.getValor());
 
         return ResponseEntity.ok().body("Depósito realizado com sucesso!");
     }
 
-    @PutMapping("/sacar/{clienteId}")
-    public ResponseEntity<?> sacar(@PathVariable Long clienteId,
-                                   @RequestHeader String token,
+    @PutMapping("/sacar")
+    public ResponseEntity<?> sacar(@RequestHeader String token,
                                    @RequestBody ContaRequest contaRequest){
+
+        Long clienteId = tokenService.obterIdPorToken(token);
 
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
 
@@ -124,10 +129,11 @@ public class ContaController {
 
     }
 
-    @PostMapping("/transferir/{clienteId}")
-    public ResponseEntity<?> transferir(@PathVariable Long clienteId,
-                                        @RequestHeader String token,
+    @PostMapping("/transferir")
+    public ResponseEntity<?> transferir(@RequestHeader String token,
                                         @RequestBody ContaRequest contaRequest){
+
+        Long clienteId = tokenService.obterIdPorToken(token);
 
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
 
@@ -137,7 +143,7 @@ public class ContaController {
 
         contaService.verificaConta(clienteId);
 
-        contaService.transferir(clienteEncontrado.get(), contaRequest.getNroconta(), contaRequest.getValor());
+        contaService.transferir(clienteEncontrado.get(), contaRequest.getNumero(), contaRequest.getValor());
 
         return ResponseEntity.ok("Transferência realizada com sucesso");
 

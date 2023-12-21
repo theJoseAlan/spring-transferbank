@@ -104,7 +104,7 @@ public class ContaService {
 
         Optional<Conta> contaDestino = contaRepository.findByNumero(nroContaDestino);
 
-        if(contaDestino.get() == contaDestino.get()){
+        if(contaOrigem == contaDestino){
             throw new NegocioException("Não é possível transferir para sua própria conta!");
         }
 

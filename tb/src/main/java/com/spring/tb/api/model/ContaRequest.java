@@ -9,7 +9,7 @@ public class ContaRequest {
 
     private int agencia;
 
-    private int nroconta;
+    private int numero;
 
     private Float valor;
 }

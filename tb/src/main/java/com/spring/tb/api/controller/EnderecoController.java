@@ -6,6 +6,7 @@ import com.spring.tb.domain.services.ClienteService;
 import com.spring.tb.domain.services.EnderecoService;
 import com.spring.tb.domain.services.JwtTokenService;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,21 +16,21 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/endereco")
+@AllArgsConstructor
 public class EnderecoController {
 
-    @Autowired
     private ClienteService clienteService;
 
     @Autowired
     private JwtTokenService tokenService;
 
-    @Autowired
     private EnderecoService enderecoService;
 
-    @PostMapping("/{clienteId}")
+    @PostMapping
     public ResponseEntity<?> cadastrar(@Valid @RequestBody Endereco endereco,
-                                              @PathVariable Long clienteId,
                                               @RequestHeader String token){
+
+        Long clienteId = tokenService.obterIdPorToken(token);
 
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
 
@@ -49,10 +50,11 @@ public class EnderecoController {
 
     }
 
-    @PutMapping("/{clienteId}")
+    @PutMapping
     public ResponseEntity<?> atualizar(@Valid @RequestBody Endereco endereco,
-                                       @PathVariable Long clienteId,
                                        @RequestHeader String token){
+
+        Long clienteId = tokenService.obterIdPorToken(token);
 
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
 
@@ -63,16 +65,19 @@ public class EnderecoController {
         enderecoService.verificaEndereco(clienteId);
 
         endereco.setId(enderecoEncontrado.get().getId());
+
         endereco.setCliente(clienteEncontrado.get());
+
         enderecoService.salvar(endereco);
 
         return ResponseEntity.status(HttpStatus.OK).body("Endereço atualizado");
 
     }
 
-    @GetMapping("/{clienteId}")
-    public ResponseEntity<Endereco> buscarPorClienteId(@PathVariable Long clienteId,
-                                                       @RequestHeader String token){
+    @GetMapping
+    public ResponseEntity<Endereco> buscarPorClienteId(@RequestHeader String token){
+
+        Long clienteId = tokenService.obterIdPorToken(token);
 
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
 

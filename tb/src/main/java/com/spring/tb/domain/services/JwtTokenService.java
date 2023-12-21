@@ -1,13 +1,17 @@
 package com.spring.tb.domain.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.tb.domain.exception.LoginNaoAutorizadoException;
 import com.spring.tb.domain.exception.NegocioException;
 import com.spring.tb.domain.model.Cliente;
+import com.spring.tb.domain.model.ObjetoToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.jwt.Jwt;
+import org.springframework.security.jwt.JwtHelper;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -18,7 +22,7 @@ import java.util.Optional;
 @Service
 public class JwtTokenService {
 
-    SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
 
     public String geraToken(Cliente cliente){
@@ -81,5 +85,26 @@ public class JwtTokenService {
         }
     }
 
+    public Long obterIdPorToken(String token){
+
+        Jwt jwt = JwtHelper.decode(token);
+
+        // Obtendo o corpo (payload) do token como uma String
+        String payload = jwt.getClaims();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+
+            //Convertendo o payload em um Objeto
+            ObjetoToken objetoToken = objectMapper.readValue(payload, ObjetoToken.class);
+
+            return objetoToken.getJti();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao converter o corpo do token em Objeto. "+e.getMessage());
+        }
+
+    }
 
 }
