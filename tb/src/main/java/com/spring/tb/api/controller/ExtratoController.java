@@ -38,7 +38,7 @@ public class ExtratoController {
 
         List<Extrato> listaDeExtratosPorCliente = extratoService.listarPorCliente(clienteId);
 
-        Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
+        Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
         if(!tokenService.verificaToken(clienteEncontrado, token)){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -58,7 +58,7 @@ public class ExtratoController {
 
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
 
-        if(!tokenService.verificaToken(clienteEncontrado, token)){
+        if(!tokenService.verificaToken(clienteEncontrado.get(), token)){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 

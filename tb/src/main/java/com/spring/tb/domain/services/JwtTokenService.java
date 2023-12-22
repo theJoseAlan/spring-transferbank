@@ -2,7 +2,6 @@ package com.spring.tb.domain.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.tb.domain.exception.LoginNaoAutorizadoException;
-import com.spring.tb.domain.exception.NegocioException;
 import com.spring.tb.domain.model.Cliente;
 import com.spring.tb.domain.model.ObjetoToken;
 import io.jsonwebtoken.Claims;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.security.SecureRandom;
 import java.util.Date;
-import java.util.Optional;
 
 @Service
 public class JwtTokenService {
@@ -59,14 +57,18 @@ public class JwtTokenService {
         return true;
     }
 
-    public boolean verificaToken(Optional<Cliente> cliente, String token){
+    public boolean verificaToken(Cliente cliente, String token){
+
+        if(token.isEmpty() || token.isBlank()){
+            throw new LoginNaoAutorizadoException("Faça o login para obter o token de acesso");
+        }
 
         try{
-            if(cliente.isEmpty() || !validarToken(token, cliente.get().getEmail())){
+            if(!validarToken(token, cliente.getEmail())){
                 return false;
             }
         }catch (Exception ex){
-            throw new NegocioException("Faça o login para obter o token de acesso");
+            throw new LoginNaoAutorizadoException("Faça o login para obter o token de acesso");
         }
 
         return true;

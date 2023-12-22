@@ -38,7 +38,7 @@ public class ContaController {
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
         Optional<Conta> contaEncontrada = contaService.buscarPorClienteId(clienteId);
 
-        if(!tokenService.verificaToken(clienteEncontrado, token)){
+        if(!tokenService.verificaToken(clienteEncontrado.get(), token)){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
@@ -59,7 +59,7 @@ public class ContaController {
 
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
 
-        if(!tokenService.verificaToken(clienteEncontrado, token)){
+        if(!tokenService.verificaToken(clienteEncontrado.get(), token)){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
@@ -80,7 +80,7 @@ public class ContaController {
 
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
 
-        if(!tokenService.verificaToken(clienteEncontrado, token)){
+        if(!tokenService.verificaToken(clienteEncontrado.get(), token)){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
@@ -100,7 +100,7 @@ public class ContaController {
 
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
 
-        if(!tokenService.verificaToken(clienteEncontrado, token)){
+        if(!tokenService.verificaToken(clienteEncontrado.get(), token)){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
@@ -117,7 +117,7 @@ public class ContaController {
 
         Long clienteId = tokenService.obterIdPorToken(token);
 
-        Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
+        Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
         if(!tokenService.verificaToken(clienteEncontrado, token)){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -137,7 +137,7 @@ public class ContaController {
 
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
 
-        if(!tokenService.verificaToken(clienteEncontrado, token)){
+        if(!tokenService.verificaToken(clienteEncontrado.get(), token)){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 

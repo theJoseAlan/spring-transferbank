@@ -2,10 +2,8 @@ package com.spring.tb.api.controller;
 
 import com.spring.tb.api.dto.ClienteDto;
 import com.spring.tb.api.model.Login;
-import com.spring.tb.domain.exception.EntidadeNaoEncontradaException;
 import com.spring.tb.domain.exception.LoginNaoAutorizadoException;
 import com.spring.tb.domain.model.Cliente;
-import com.spring.tb.domain.model.Endereco;
 import com.spring.tb.domain.services.ClienteService;
 import com.spring.tb.domain.services.EmailService;
 import com.spring.tb.domain.services.EnderecoService;
@@ -17,8 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/cliente")
@@ -50,15 +46,11 @@ public class ClienteController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody Login login){
+    public ResponseEntity<String> login(@Valid @RequestBody Login login){
 
-        Optional<Cliente> clienteEncontrado = clienteService.buscarPoremail(login.getEmail());
+        Cliente cliente = clienteService.verificaCadastroCliente(login.getEmail());
 
-        if(!clienteEncontrado.isPresent()){
-            throw new EntidadeNaoEncontradaException("Você ainda não possui cadastro no sistema!");
-        }
-
-        return ResponseEntity.ok(tokenService.geraTokenLogin(login.getSenha(), clienteEncontrado.get()));
+        return ResponseEntity.ok(tokenService.geraTokenLogin(login.getSenha(), cliente));
 
     }
 
@@ -69,19 +61,15 @@ public class ClienteController {
 
             Long clienteId = tokenService.obterIdPorToken(token);
 
-            Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
+            Cliente cliente = clienteService.verificaCadastroCliente(clienteId);
 
-            if(!clienteEncontrado.isPresent()){
-                throw new EntidadeNaoEncontradaException("Você ainda não possui cadastro no sistema!");
-            }
-
-            if(!tokenService.verificaToken(clienteEncontrado, token)){
+            if(!tokenService.verificaToken(cliente, token)){
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
 
             tokenService.obterIdPorToken(token);
 
-            ClienteDto clienteDto = modelMapper.map(clienteEncontrado.get(), ClienteDto.class);
+            ClienteDto clienteDto = modelMapper.map(cliente, ClienteDto.class);
 
             return ResponseEntity.ok(clienteDto);
 
@@ -97,15 +85,7 @@ public class ClienteController {
         try {
             Long clienteId = tokenService.obterIdPorToken(token);
 
-            Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
-
-            if(!clienteEncontrado.isPresent()){
-                throw new EntidadeNaoEncontradaException("Você ainda não possui cadastro no sistema!");
-            }
-
-            if(clienteEncontrado.isEmpty()){
-                return ResponseEntity.notFound().build();
-            }
+            Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
             if(!tokenService.verificaToken(clienteEncontrado, token)){
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -127,21 +107,13 @@ public class ClienteController {
 
             Long clienteId = tokenService.obterIdPorToken(token);
 
-            Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
+            Cliente cliente = clienteService.verificaCadastroCliente(clienteId);
 
-            if(!clienteEncontrado.isPresent()){
-                throw new EntidadeNaoEncontradaException("Você ainda não possui cadastro no sistema!");
-            }
-
-            if(!tokenService.verificaToken(clienteEncontrado, token)){
+            if(!tokenService.verificaToken(cliente, token)){
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
 
-            Optional<Endereco> enderecoEncontrado = enderecoService.buscarPorClienteId(clienteId);
-
-            if(enderecoEncontrado.isPresent()){
-                enderecoService.deletarEndereco(enderecoEncontrado.get().getId());
-            }
+            enderecoService.deletarEnderecoExistente(clienteId);
 
             clienteService.deletarPorId(clienteId);
 

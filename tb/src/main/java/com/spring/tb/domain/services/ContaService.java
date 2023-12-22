@@ -51,7 +51,7 @@ public class ContaService {
         Optional<Conta> contaEncontrada = contaRepository.findByClienteId(clienteId);
 
         if(!contaEncontrada.isPresent()){
-            throw new NegocioException("Conta não encontrada");
+            throw new NegocioException("Você não possui uma conta aberta!");
         }
 
         return contaEncontrada.get().getSaldo();
@@ -81,7 +81,7 @@ public class ContaService {
         Optional<Conta> contaEncontrada = contaRepository.findByClienteId(clienteId);
 
         if(!contaEncontrada.isPresent()){
-            throw new EntidadeNaoEncontradaException("Conta não encontrada");
+            throw new NegocioException("Você não possui uma conta aberta!");
         }
 
         if(valor > contaEncontrada.get().getSaldo()){

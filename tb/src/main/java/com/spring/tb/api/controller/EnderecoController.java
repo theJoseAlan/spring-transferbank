@@ -12,8 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/endereco")
 @AllArgsConstructor
@@ -27,23 +25,19 @@ public class EnderecoController {
     private EnderecoService enderecoService;
 
     @PostMapping
-    public ResponseEntity<?> cadastrar(@Valid @RequestBody Endereco endereco,
+    public ResponseEntity<Endereco> cadastrar(@Valid @RequestBody Endereco endereco,
                                               @RequestHeader String token){
 
         Long clienteId = tokenService.obterIdPorToken(token);
 
-        Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
+        Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
         tokenService.verificaToken(clienteEncontrado, token);
 
-        Optional<Endereco> enderecoEncontrado = enderecoService.buscarPorClienteId(clienteId);
+        enderecoService.buscarPorClienteId(clienteId);
 
-        if(!enderecoEncontrado.isEmpty()){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Esse cliente já possui um endereço cadastrado!");
-        }
+        endereco.setCliente(clienteEncontrado);
 
-        endereco.setCliente(clienteEncontrado.get());
         Endereco enderecoSalvo = enderecoService.salvar(endereco);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(enderecoSalvo);
@@ -51,22 +45,20 @@ public class EnderecoController {
     }
 
     @PutMapping
-    public ResponseEntity<?> atualizar(@Valid @RequestBody Endereco endereco,
+    public ResponseEntity<String> atualizar(@Valid @RequestBody Endereco endereco,
                                        @RequestHeader String token){
 
         Long clienteId = tokenService.obterIdPorToken(token);
 
-        Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
+        Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
         tokenService.verificaToken(clienteEncontrado, token);
 
-        Optional<Endereco> enderecoEncontrado = enderecoService.buscarPorClienteId(clienteId);
+        Endereco enderecoEncontrado = enderecoService.verificaEndereco(clienteId);
 
-        enderecoService.verificaEndereco(clienteId);
+        endereco.setId(enderecoEncontrado.getId());
 
-        endereco.setId(enderecoEncontrado.get().getId());
-
-        endereco.setCliente(clienteEncontrado.get());
+        endereco.setCliente(clienteEncontrado);
 
         enderecoService.salvar(endereco);
 
@@ -79,18 +71,13 @@ public class EnderecoController {
 
         Long clienteId = tokenService.obterIdPorToken(token);
 
-        Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
-
+        Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
         tokenService.verificaToken(clienteEncontrado, token);
 
-        Optional<Endereco> enderecoEncontrado = enderecoService.buscarPorClienteId(clienteId);
+        Endereco enderecoEncontrado = enderecoService.verificaEndereco(clienteId);
 
-        if(enderecoEncontrado.isPresent()){
-            return ResponseEntity.status(HttpStatus.OK).body(enderecoEncontrado.get());
-        }
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return ResponseEntity.status(HttpStatus.OK).body(enderecoEncontrado);
 
     }
 

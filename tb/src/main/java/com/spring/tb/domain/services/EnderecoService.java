@@ -1,5 +1,6 @@
 package com.spring.tb.domain.services;
 
+import com.spring.tb.domain.exception.EntidadeNaoEncontradaException;
 import com.spring.tb.domain.exception.NegocioException;
 import com.spring.tb.domain.model.Endereco;
 import com.spring.tb.domain.repository.EnderecoRepository;
@@ -20,22 +21,34 @@ public class EnderecoService {
         return enderecoRepository.save(endereco);
     }
 
-    public void deletarEndereco(Long enderecoId){
-        enderecoRepository.deleteById(enderecoId);
+    public void deletarEnderecoExistente(Long clienteId){
+
+        Optional<Endereco> enderecoEncontrado = enderecoRepository.findByClienteId(clienteId);
+
+        if(enderecoEncontrado.isPresent()){
+            enderecoRepository.deleteById(enderecoEncontrado.get().getId());
+        }
+
     }
 
-    public Optional<Endereco> buscarPorClienteId(Long clienteId){
-        return enderecoRepository.findByClienteId(clienteId);
+    public void buscarPorClienteId(Long clienteId){
+
+        Optional<Endereco> enderecoEncontrado = enderecoRepository.findByClienteId(clienteId);
+
+        if(!enderecoEncontrado.isEmpty()){
+            throw new NegocioException("Você já possui um endereco cadastrado");
+        }
     }
 
-    public void verificaEndereco(Long clienteId){
+    public Endereco verificaEndereco(Long clienteId){
 
         Optional<Endereco> enderecoEncontrado = enderecoRepository.findByClienteId(clienteId);
 
         if(!enderecoEncontrado.isPresent()){
-            throw new NegocioException("Você ainda não possui um endereco cadastrado!");
+            throw new EntidadeNaoEncontradaException("Você ainda não possui um endereco cadastrado!");
         }
 
+        return enderecoEncontrado.get();
     }
 
 }

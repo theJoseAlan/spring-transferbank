@@ -1,5 +1,6 @@
 package com.spring.tb.domain.services;
 
+import com.spring.tb.domain.exception.EntidadeNaoEncontradaException;
 import com.spring.tb.domain.exception.NegocioException;
 import com.spring.tb.domain.model.Cliente;
 import com.spring.tb.domain.repository.ClienteRepository;
@@ -85,9 +86,26 @@ public class ClienteService {
     }
 
 
-    public Optional<Cliente> buscarPoremail(String email){
+    public Cliente verificaCadastroCliente(String email){
 
-        return clienteRepository.findByEmail(email);
+        Optional<Cliente> clienteEncontrado = clienteRepository.findByEmail(email);
+
+        if(!clienteEncontrado.isPresent()){
+            throw new EntidadeNaoEncontradaException("Você ainda não possui cadastro no sistema!");
+        }
+
+        return clienteEncontrado.get();
+    }
+
+    public Cliente verificaCadastroCliente(Long clienteId){
+
+        Optional<Cliente> clienteEncontrado = clienteRepository.findById(clienteId);
+
+        if(!clienteEncontrado.isPresent()){
+            throw new EntidadeNaoEncontradaException("Você ainda não possui cadastro no sistema!");
+        }
+
+        return clienteEncontrado.get();
     }
 
 }
