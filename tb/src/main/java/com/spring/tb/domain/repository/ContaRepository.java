@@ -12,4 +12,6 @@ public interface ContaRepository extends JpaRepository<Conta, Long> {
     Optional<Conta> findByNumero(int numero);
 
     Optional<Conta> findByClienteId(Long clienteId);
+
+    void deleteByClienteId(Long clienteId);
 }

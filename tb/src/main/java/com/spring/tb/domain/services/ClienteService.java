@@ -17,10 +17,16 @@ public class ClienteService {
     @Autowired
     private ClienteRepository clienteRepository;
 
-    BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+    @Autowired
+    private EnderecoService enderecoService;
+
+    @Autowired
+    private ContaService contaService;
 
     @Transactional
     public Cliente salvar(Cliente cliente){
+
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
         boolean emailEmUso = clienteRepository.findByEmail(cliente.getEmail())
                 .stream()
@@ -47,6 +53,8 @@ public class ClienteService {
 
     @Transactional
     public Cliente atualizar(Cliente cliente) {
+
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
         Optional<Cliente> clienteExistenteByEmail = clienteRepository.findByEmail(cliente.getEmail());
 

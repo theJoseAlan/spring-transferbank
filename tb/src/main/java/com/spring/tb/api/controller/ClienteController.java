@@ -2,12 +2,9 @@ package com.spring.tb.api.controller;
 
 import com.spring.tb.api.dto.ClienteDto;
 import com.spring.tb.api.model.Login;
-import com.spring.tb.domain.exception.LoginNaoAutorizadoException;
+import com.spring.tb.domain.exception.NegocioException;
 import com.spring.tb.domain.model.Cliente;
-import com.spring.tb.domain.services.ClienteService;
-import com.spring.tb.domain.services.EmailService;
-import com.spring.tb.domain.services.EnderecoService;
-import com.spring.tb.domain.services.JwtTokenService;
+import com.spring.tb.domain.services.*;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -31,6 +28,8 @@ public class ClienteController {
     private EmailService emailService;
 
     private EnderecoService enderecoService;
+
+    private ContaService contaService;
 
     @PostMapping
     public ResponseEntity<ClienteDto> cadastrar(@Valid @RequestBody Cliente cliente){
@@ -74,7 +73,7 @@ public class ClienteController {
             return ResponseEntity.ok(clienteDto);
 
         }catch (Exception e){
-            throw new LoginNaoAutorizadoException("Faça o login para obter o token de acesso");
+            throw new NegocioException("Erro ao obter dados cliente");
         }
 
     }
@@ -96,12 +95,12 @@ public class ClienteController {
 
             return ResponseEntity.status(HttpStatus.OK).body("Cliente atualizado!");
         }catch (Exception e){
-            throw new LoginNaoAutorizadoException("Faça o login para obter o token de acesso");
+            throw new NegocioException("Erro ao atualizar cliente");
         }
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deletar(@RequestHeader String token){
+    public ResponseEntity<?> deletar(@RequestHeader String token){
 
         try {
 
@@ -113,6 +112,8 @@ public class ClienteController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
 
+            contaService.deletarConta(clienteId);
+
             enderecoService.deletarEnderecoExistente(clienteId);
 
             clienteService.deletarPorId(clienteId);
@@ -120,7 +121,7 @@ public class ClienteController {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
         }catch (Exception e){
-            throw new LoginNaoAutorizadoException("Faça o login para obter o token de acesso");
+            throw new NegocioException("Erro ao deletar cliente: "+e.getMessage());
 
         }
     }

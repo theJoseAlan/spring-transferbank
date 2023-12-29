@@ -3,27 +3,22 @@ package com.spring.tb.domain.services;
 import com.spring.tb.domain.model.Cliente;
 import com.spring.tb.domain.model.Conta;
 import com.spring.tb.domain.model.Extrato;
-import com.spring.tb.domain.repository.ContaRepository;
 import com.spring.tb.domain.repository.ExtratoRepository;
 import jakarta.transaction.TransactionScoped;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
 public class ExtratoService {
 
-    @Autowired
     private ExtratoRepository extratoRepository;
 
-    @Autowired
-    private ContaRepository contaRepository;
+    private ContaService contaService;
 
     public List<Extrato> listarPorCliente(Long clienteId){
         return extratoRepository.findAllByClienteId(clienteId);
@@ -32,15 +27,15 @@ public class ExtratoService {
     @Transactional
     public void geraExtratoDeposito(Cliente cliente, int numeroConta, Float valor){
 
-        Optional<Conta> contaEncontrada = contaRepository.findByNumero(numeroConta);
+        Conta contaEncontrada = contaService.buscarPorNumero(numeroConta);
 
         Extrato extrato = new Extrato();
         extrato.setTipo("Deposito");
         extrato.setData(OffsetDateTime.now());
         extrato.setValor(valor);
 
-        if(contaEncontrada.get().getCliente().getId() != cliente.getId()){
-            extrato.setNomeClienteDestino(contaEncontrada.get().getCliente().getNome());
+        if(contaEncontrada.getCliente().getId() != cliente.getId()){
+            extrato.setNomeClienteDestino(contaEncontrada.getCliente().getNome());
         }
 
         extrato.setCliente(cliente);
@@ -63,15 +58,15 @@ public class ExtratoService {
     @TransactionScoped
     public void geraExtratoTransferencia(int nroContaOrigem, int nroContaDestino, Float valor){
 
-        Optional<Conta> contaOrigem = contaRepository.findByNumero(nroContaOrigem);
-        Optional<Conta> contaDestino = contaRepository.findByNumero(nroContaDestino);
+        Conta contaOrigem = contaService.buscarPorNumero(nroContaOrigem);
+        Conta contaDestino = contaService.buscarPorNumero(nroContaDestino);
 
         Extrato extrato = new Extrato();
-        extrato.setTipo("Transferência");
+        extrato.setTipo("Transferencia");
         extrato.setData(OffsetDateTime.now());
         extrato.setValor(valor);
-        extrato.setNomeClienteDestino(contaDestino.get().getCliente().getNome());
-        extrato.setCliente(contaOrigem.get().getCliente());
+        extrato.setNomeClienteDestino(contaDestino.getCliente().getNome());
+        extrato.setCliente(contaOrigem.getCliente());
 
         extratoRepository.save(extrato);
 
@@ -79,6 +74,10 @@ public class ExtratoService {
 
     public List<Extrato> listarPorTipo(String tipo, Long clienteId){
         return extratoRepository.findAllByTipoAndClienteId(tipo, clienteId);
+    }
+
+    public void deletarTodosPorClienteId(Long clienteId){
+        extratoRepository.deletarTodosPorClienteId(clienteId);
     }
 
 }

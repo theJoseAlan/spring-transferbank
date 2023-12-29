@@ -5,7 +5,7 @@ import com.spring.tb.domain.exception.NegocioException;
 import com.spring.tb.domain.model.Cliente;
 import com.spring.tb.domain.model.Conta;
 import com.spring.tb.domain.repository.ContaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,15 +13,13 @@ import java.util.Optional;
 import java.util.Random;
 
 @Service
+@AllArgsConstructor
 public class ContaService {
 
-    @Autowired
     private ContaRepository contaRepository;
 
-    @Autowired
     private ExtratoService extratoService;
 
-    @Autowired
     private EnderecoService enderecoService;
 
     @Transactional
@@ -66,6 +64,10 @@ public class ContaService {
             throw new EntidadeNaoEncontradaException("Conta não encontrada");
         }
 
+        if(valor <= 0){
+            throw new NegocioException("Insira um valor válido para o depósito");
+        }
+
         Float valorDeposito = contaEncontrada.get().getSaldo() + valor;
 
         contaEncontrada.get().setSaldo(valorDeposito);
@@ -86,6 +88,10 @@ public class ContaService {
 
         if(valor > contaEncontrada.get().getSaldo()){
             throw new NegocioException("Saldo insuficiente");
+        }
+
+        if(valor <= 0){
+            throw new NegocioException("Insira um valor válido para o depósito");
         }
 
         Float valorSaque = contaEncontrada.get().getSaldo() - valor;
@@ -112,6 +118,10 @@ public class ContaService {
             throw new EntidadeNaoEncontradaException("Sua conta ou destinatário não foi encontrado!");
         }
 
+        if(valor <= 0){
+            throw new NegocioException("Insira um valor válido para o depósito");
+        }
+
         if(valor > contaOrigem.get().getSaldo()){
             throw new NegocioException("Saldo insuficiente");
         }
@@ -135,5 +145,22 @@ public class ContaService {
         if(contaEncontrada.isEmpty()){
             throw new NegocioException("Você não possui uma conta aberta!");
         }
+    }
+
+    public void deletarConta(Long clienteId){
+
+        Optional<Conta> contaEncontrada = contaRepository.findByClienteId(clienteId);
+
+        if(contaEncontrada.get().getSaldo() > 0){
+            throw new NegocioException("Você ainda possui saldo na conta");
+        }
+
+        extratoService.deletarTodosPorClienteId(clienteId);
+        contaRepository.deleteById(contaEncontrada.get().getId());
+
+    }
+
+    public Conta buscarPorNumero(int numeroConta){
+        return contaRepository.findByNumero(numeroConta).get();
     }
 }
