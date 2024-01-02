@@ -10,7 +10,6 @@ import com.spring.tb.domain.services.ExtratoService;
 import com.spring.tb.domain.services.JwtTokenService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,9 +37,7 @@ public class ExtratoController {
 
         Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
-        if(!tokenService.verificaToken(clienteEncontrado, token)){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        tokenService.verificaToken(clienteEncontrado, token);
 
         List<Extrato> listaDeExtratosPorTipo = extratoService.listarPorTipo(extratoInput.getTipo(),
                 clienteEncontrado.getId());
@@ -58,9 +55,7 @@ public class ExtratoController {
 
         Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
-        if(!tokenService.verificaToken(clienteEncontrado, token)){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        tokenService.verificaToken(clienteEncontrado, token);
 
         List<Extrato> listaDeExtratosPorTipo = extratoService.listarPorClienteId(clienteId);
 

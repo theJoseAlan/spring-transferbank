@@ -57,7 +57,7 @@ public class JwtTokenService {
         return true;
     }
 
-    public boolean verificaToken(Cliente cliente, String token){
+    public void verificaToken(Cliente cliente, String token){
 
         if(token.isEmpty() || token.isBlank()){
             throw new LoginNaoAutorizadoException("Faça o login para obter o token de acesso");
@@ -65,13 +65,12 @@ public class JwtTokenService {
 
         try{
             if(!validarToken(token, cliente.getEmail())){
-                return false;
+                throw new LoginNaoAutorizadoException("Faça o login para obter o token de acesso");
             }
         }catch (Exception ex){
             throw new LoginNaoAutorizadoException("Faça o login para obter o token de acesso");
         }
 
-        return true;
     }
 
     public String geraTokenLogin(String senhaInput, Cliente cliente){

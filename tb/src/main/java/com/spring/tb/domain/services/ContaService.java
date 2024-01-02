@@ -40,8 +40,8 @@ public class ContaService {
         return conta;
     }
 
-    public Optional<Conta> buscarPorClienteId(Long clienteId){
-        return contaRepository.findByClienteId(clienteId);
+    public Conta buscarPorClienteId(Long clienteId){
+        return contaRepository.findByClienteId(clienteId).get();
     }
 
     public Float consultarSaldo(Long clienteId){
@@ -146,6 +146,15 @@ public class ContaService {
 
         if(contaEncontrada.isEmpty()){
             throw new NegocioException("Você não possui uma conta aberta!");
+        }
+    }
+
+
+    public void verificaContaExistente(Long clienteId){
+        Optional<Conta> contaEncontrada = contaRepository.findByClienteId(clienteId);
+
+        if(!contaEncontrada.isEmpty()){
+            throw new NegocioException("Você já possui uma conta aberta!");
         }
     }
 

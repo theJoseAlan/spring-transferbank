@@ -64,9 +64,7 @@ public class ClienteController {
 
             Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
-            if(!tokenService.verificaToken(clienteEncontrado, token)){
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
+            tokenService.verificaToken(clienteEncontrado, token);
 
             tokenService.obterIdPorToken(token);
 
@@ -88,9 +86,7 @@ public class ClienteController {
 
             Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
-            if(!tokenService.verificaToken(clienteEncontrado, token)){
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
+            tokenService.verificaToken(clienteEncontrado, token);
 
             cliente.setId(clienteId);
             clienteService.atualizar(cliente);
@@ -110,9 +106,7 @@ public class ClienteController {
 
             Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
-            if(!tokenService.verificaToken(clienteEncontrado, token)){
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
+            tokenService.verificaToken(clienteEncontrado, token);
 
             contaService.deletarConta(clienteId);
 

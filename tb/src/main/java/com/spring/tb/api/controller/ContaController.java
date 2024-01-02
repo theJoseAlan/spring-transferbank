@@ -15,8 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/conta")
 @AllArgsConstructor
@@ -38,16 +36,10 @@ public class ContaController {
                 Long clienteId = tokenService.obterIdPorToken(token);
 
                 Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
-                Optional<Conta> contaEncontrada = contaService.buscarPorClienteId(clienteId);
 
-                if(!tokenService.verificaToken(clienteEncontrado, token)){
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-                }
+                tokenService.verificaToken(clienteEncontrado, token);
 
-                if(!contaEncontrada.isEmpty()){
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Esse cliente já possui uma conta aberta!");
-                }
+                contaService.verificaContaExistente(clienteId);
 
                 Conta contaAberta = contaService.abrirConta(clienteEncontrado);
 
@@ -66,15 +58,13 @@ public class ContaController {
 
             Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
-            if(!tokenService.verificaToken(clienteEncontrado, token)){
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
-
-            Optional<Conta> contaEncontrada = contaService.buscarPorClienteId(clienteId);
+            tokenService.verificaToken(clienteEncontrado, token);
 
             contaService.verificaConta(clienteId);
 
-            ContaDto contaDto = modelMapper.map(contaEncontrada.get(), ContaDto.class);
+            Conta contaEncontrada = contaService.buscarPorClienteId(clienteId);
+
+            ContaDto contaDto = modelMapper.map(contaEncontrada, ContaDto.class);
 
             return ResponseEntity.ok(contaDto);
 
@@ -93,9 +83,7 @@ public class ContaController {
 
             Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
-            if(!tokenService.verificaToken(clienteEncontrado, token)){
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
+            tokenService.verificaToken(clienteEncontrado, token);
 
             contaService.verificaConta(clienteId);
 
@@ -118,9 +106,7 @@ public class ContaController {
 
             Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
-            if(!tokenService.verificaToken(clienteEncontrado, token)){
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
+            tokenService.verificaToken(clienteEncontrado, token);
 
             contaService.verificaConta(clienteId);
 
@@ -143,9 +129,7 @@ public class ContaController {
 
             Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
-            if(!tokenService.verificaToken(clienteEncontrado, token)){
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
+            tokenService.verificaToken(clienteEncontrado, token);
 
             contaService.sacar(clienteId, contaRequest.getValor());
 
@@ -166,9 +150,7 @@ public class ContaController {
 
             Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
-            if(!tokenService.verificaToken(clienteEncontrado, token)){
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
+            tokenService.verificaToken(clienteEncontrado, token);
 
             contaService.verificaConta(clienteId);
 
