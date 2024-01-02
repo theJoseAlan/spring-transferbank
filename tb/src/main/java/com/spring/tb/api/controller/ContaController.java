@@ -30,7 +30,7 @@ public class ContaController {
     private ModelMapper modelMapper;
 
     @PostMapping
-    public ResponseEntity<?> abrirConta(@RequestHeader String token){
+    public ResponseEntity<Conta> abrirConta(@RequestHeader String token){
 
         try{
                 Long clienteId = tokenService.obterIdPorToken(token);
@@ -51,7 +51,7 @@ public class ContaController {
     }
 
     @GetMapping
-    public ResponseEntity<?> obterDadosDaConta(@RequestHeader String token){
+    public ResponseEntity<ContaDto> obterDadosDaConta(@RequestHeader String token){
 
         try {
             Long clienteId = tokenService.obterIdPorToken(token);
@@ -76,7 +76,7 @@ public class ContaController {
     }
 
     @GetMapping("/saldo")
-    public ResponseEntity<?> consultarSaldo(@RequestHeader String token){
+    public ResponseEntity<Float> consultarSaldo(@RequestHeader String token){
 
         try {
             Long clienteId = tokenService.obterIdPorToken(token);
@@ -97,7 +97,7 @@ public class ContaController {
     }
 
     @PutMapping
-    public ResponseEntity<?> depositar(@RequestHeader String token,
+    public ResponseEntity<String> depositar(@RequestHeader String token,
                                              @RequestBody ContaRequest contaRequest){
 
         try {
@@ -120,7 +120,7 @@ public class ContaController {
     }
 
     @PutMapping("/sacar")
-    public ResponseEntity<?> sacar(@RequestHeader String token,
+    public ResponseEntity<String> sacar(@RequestHeader String token,
                                    @RequestBody ContaRequest contaRequest){
 
         try {
@@ -141,7 +141,7 @@ public class ContaController {
     }
 
     @PostMapping("/transferir")
-    public ResponseEntity<?> transferir(@RequestHeader String token,
+    public ResponseEntity<String> transferir(@RequestHeader String token,
                                         @RequestBody ContaRequest contaRequest){
 
         try {

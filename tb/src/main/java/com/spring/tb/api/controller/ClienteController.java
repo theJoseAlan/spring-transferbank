@@ -79,7 +79,7 @@ public class ClienteController {
     }
 
     @PutMapping
-    public ResponseEntity<?> atualizar(@Valid @RequestBody Cliente cliente,
+    public ResponseEntity<String> atualizar(@Valid @RequestBody Cliente cliente,
                                              @RequestHeader String token){
         try {
             Long clienteId = tokenService.obterIdPorToken(token);
@@ -89,6 +89,7 @@ public class ClienteController {
             tokenService.verificaToken(clienteEncontrado, token);
 
             cliente.setId(clienteId);
+
             clienteService.atualizar(cliente);
 
             return ResponseEntity.status(HttpStatus.OK).body("Cliente atualizado!");
@@ -98,7 +99,7 @@ public class ClienteController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deletar(@RequestHeader String token){
+    public ResponseEntity<Void> deletar(@RequestHeader String token){
 
         try {
 
