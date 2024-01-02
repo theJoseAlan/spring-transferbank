@@ -1,11 +1,11 @@
 package com.spring.tb.domain.services;
 
+import com.spring.tb.domain.exception.NegocioException;
 import com.spring.tb.domain.model.Cliente;
 import com.spring.tb.domain.model.Conta;
 import com.spring.tb.domain.model.Extrato;
 import com.spring.tb.domain.repository.ExtratoRepository;
-import jakarta.transaction.TransactionScoped;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,29 +13,40 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 @Service
-@AllArgsConstructor
 public class ExtratoService {
 
+    @Autowired
     private ExtratoRepository extratoRepository;
 
-    private ContaService contaService;
-
-    public List<Extrato> listarPorCliente(Long clienteId){
-        return extratoRepository.findAllByClienteId(clienteId);
-    }
-
     @Transactional
-    public void geraExtratoDeposito(Cliente cliente, int numeroConta, Float valor){
-
-        Conta contaEncontrada = contaService.buscarPorNumero(numeroConta);
+    public void geraExtratoTransferencia(Float valor, Cliente contaClienteDestino,
+                                         Cliente contaClienteOrigem){
 
         Extrato extrato = new Extrato();
-        extrato.setTipo("Deposito");
-        extrato.setData(OffsetDateTime.now());
-        extrato.setValor(valor);
 
-        if(contaEncontrada.getCliente().getId() != cliente.getId()){
-            extrato.setNomeClienteDestino(contaEncontrada.getCliente().getNome());
+        if(contaClienteOrigem.equals(contaClienteDestino)){
+            throw new NegocioException("Não é possível transferir para sua própria conta.");
+        }
+
+        extrato.setTipo("Transferencia");
+        extrato.setValor(valor);
+        extrato.setDataHora(OffsetDateTime.now());
+        extrato.setNomeClienteDestino(contaClienteDestino.getNome());
+        extrato.setCliente(contaClienteOrigem);
+
+        extratoRepository.save(extrato);
+    }
+
+    public void geraExtratoDeposito(Float valor, Cliente cliente, Conta conta){
+
+        Extrato extrato = new Extrato();
+
+        extrato.setTipo("Deposito");
+        extrato.setValor(valor);
+        extrato.setDataHora(OffsetDateTime.now());
+
+        if(!cliente.equals(conta.getCliente())){
+            extrato.setNomeClienteDestino(conta.getCliente().getNome());
         }
 
         extrato.setCliente(cliente);
@@ -43,41 +54,25 @@ public class ExtratoService {
         extratoRepository.save(extrato);
     }
 
-    @Transactional
-    public void geraExtratoSaque(Cliente cliente, Float valor){
+    public void geraExtratoSaque(Float valor, Cliente cliente){
 
         Extrato extrato = new Extrato();
+
         extrato.setTipo("Saque");
-        extrato.setData(OffsetDateTime.now());
         extrato.setValor(valor);
+        extrato.setDataHora(OffsetDateTime.now());
+
         extrato.setCliente(cliente);
 
         extratoRepository.save(extrato);
     }
 
-    @TransactionScoped
-    public void geraExtratoTransferencia(int nroContaOrigem, int nroContaDestino, Float valor){
-
-        Conta contaOrigem = contaService.buscarPorNumero(nroContaOrigem);
-        Conta contaDestino = contaService.buscarPorNumero(nroContaDestino);
-
-        Extrato extrato = new Extrato();
-        extrato.setTipo("Transferencia");
-        extrato.setData(OffsetDateTime.now());
-        extrato.setValor(valor);
-        extrato.setNomeClienteDestino(contaDestino.getCliente().getNome());
-        extrato.setCliente(contaOrigem.getCliente());
-
-        extratoRepository.save(extrato);
-
+    public List<Extrato> listarPorClienteId(Long clienteId){
+        return extratoRepository.findAllByClienteId(clienteId);
     }
 
     public List<Extrato> listarPorTipo(String tipo, Long clienteId){
         return extratoRepository.findAllByTipoAndClienteId(tipo, clienteId);
-    }
-
-    public void deletarTodosPorClienteId(Long clienteId){
-        extratoRepository.deletarTodosPorClienteId(clienteId);
     }
 
 }

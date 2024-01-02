@@ -2,6 +2,7 @@ package com.spring.tb.api.controller;
 
 import com.spring.tb.api.dto.ContaDto;
 import com.spring.tb.api.model.ContaRequest;
+import com.spring.tb.domain.exception.LoginNaoAutorizadoException;
 import com.spring.tb.domain.model.Cliente;
 import com.spring.tb.domain.model.Conta;
 import com.spring.tb.domain.services.ClienteService;
@@ -31,121 +32,152 @@ public class ContaController {
     private ModelMapper modelMapper;
 
     @PostMapping
-    public ResponseEntity<?> cadastrar(@RequestHeader String token){
+    public ResponseEntity<?> abrirConta(@RequestHeader String token){
 
-        Long clienteId = tokenService.obterIdPorToken(token);
+        try{
+                Long clienteId = tokenService.obterIdPorToken(token);
 
-        Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
-        Optional<Conta> contaEncontrada = contaService.buscarPorClienteId(clienteId);
+                Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
+                Optional<Conta> contaEncontrada = contaService.buscarPorClienteId(clienteId);
 
-        if(!tokenService.verificaToken(clienteEncontrado.get(), token)){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+                if(!tokenService.verificaToken(clienteEncontrado, token)){
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                }
 
-        if(!contaEncontrada.isEmpty()){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Esse cliente já possui uma conta aberta!");
-        }
+                if(!contaEncontrada.isEmpty()){
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Esse cliente já possui uma conta aberta!");
+                }
 
-        Conta contaAberta = contaService.abrirConta(clienteEncontrado.get());
+                Conta contaAberta = contaService.abrirConta(clienteEncontrado);
 
-        return ResponseEntity.status(HttpStatus.OK).body(contaAberta);
+                return ResponseEntity.status(HttpStatus.OK).body(contaAberta);
+
+            }catch (Exception e){
+                throw new LoginNaoAutorizadoException("Erro ao abrir conta: "+e.getMessage());
+            }
     }
 
     @GetMapping
     public ResponseEntity<?> obterDadosDaConta(@RequestHeader String token){
 
-        Long clienteId = tokenService.obterIdPorToken(token);
+        try {
+            Long clienteId = tokenService.obterIdPorToken(token);
 
-        Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
+            Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
-        if(!tokenService.verificaToken(clienteEncontrado.get(), token)){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            if(!tokenService.verificaToken(clienteEncontrado, token)){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            Optional<Conta> contaEncontrada = contaService.buscarPorClienteId(clienteId);
+
+            contaService.verificaConta(clienteId);
+
+            ContaDto contaDto = modelMapper.map(contaEncontrada.get(), ContaDto.class);
+
+            return ResponseEntity.ok(contaDto);
+
+        }catch (Exception e){
+            throw new LoginNaoAutorizadoException("Erro ao obter dados da conta: "+e.getMessage());
         }
 
-        Optional<Conta> contaEncontrada = contaService.buscarPorClienteId(clienteId);
-
-        contaService.verificaConta(clienteId);
-
-        ContaDto contaDto = modelMapper.map(contaEncontrada.get(), ContaDto.class);
-
-        return ResponseEntity.ok(contaDto);
 
     }
 
     @GetMapping("/saldo")
     public ResponseEntity<?> consultarSaldo(@RequestHeader String token){
 
-        Long clienteId = tokenService.obterIdPorToken(token);
+        try {
+            Long clienteId = tokenService.obterIdPorToken(token);
 
-        Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
+            Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
-        if(!tokenService.verificaToken(clienteEncontrado.get(), token)){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            if(!tokenService.verificaToken(clienteEncontrado, token)){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            contaService.verificaConta(clienteId);
+
+            Float saldo =  contaService.consultarSaldo(clienteId);
+
+            return ResponseEntity.ok(saldo);
+
+        }catch (Exception e){
+            throw new LoginNaoAutorizadoException("Erro ao consultar saldo: "+e.getMessage());
         }
-
-        contaService.verificaConta(clienteId);
-
-        Float saldo =  contaService.consultarSaldo(clienteId);
-
-        return ResponseEntity.ok(saldo);
-
     }
 
     @PutMapping
     public ResponseEntity<?> depositar(@RequestHeader String token,
                                              @RequestBody ContaRequest contaRequest){
 
-        Long clienteId = tokenService.obterIdPorToken(token);
+        try {
 
-        Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
+            Long clienteId = tokenService.obterIdPorToken(token);
 
-        if(!tokenService.verificaToken(clienteEncontrado.get(), token)){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
+
+            if(!tokenService.verificaToken(clienteEncontrado, token)){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            contaService.verificaConta(clienteId);
+
+            contaService.depositar(clienteEncontrado, contaRequest.getNumero(), contaRequest.getValor());
+
+            return ResponseEntity.ok().body("Depósito realizado com sucesso!");
+
+        }catch (Exception e){
+            throw new LoginNaoAutorizadoException("Erro ao depositar: "+e.getMessage());
         }
-
-        contaService.verificaConta(clienteId);
-
-        contaService.depositar(clienteEncontrado.get(), contaRequest.getNumero(), contaRequest.getValor());
-
-        return ResponseEntity.ok().body("Depósito realizado com sucesso!");
     }
 
     @PutMapping("/sacar")
     public ResponseEntity<?> sacar(@RequestHeader String token,
                                    @RequestBody ContaRequest contaRequest){
 
-        Long clienteId = tokenService.obterIdPorToken(token);
+        try {
 
-        Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
+            Long clienteId = tokenService.obterIdPorToken(token);
 
-        if(!tokenService.verificaToken(clienteEncontrado, token)){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
+
+            if(!tokenService.verificaToken(clienteEncontrado, token)){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            contaService.sacar(clienteId, contaRequest.getValor());
+
+            return ResponseEntity.ok().body("Saque realizado com sucesso!");
+
+        }catch (Exception e){
+            throw new LoginNaoAutorizadoException("Erro ao sacar: "+e.getMessage());
         }
-
-        contaService.sacar(clienteId, contaRequest.getValor());
-
-        return ResponseEntity.ok().body("Saque realizado com sucesso!");
-
     }
 
     @PostMapping("/transferir")
     public ResponseEntity<?> transferir(@RequestHeader String token,
                                         @RequestBody ContaRequest contaRequest){
 
-        Long clienteId = tokenService.obterIdPorToken(token);
+        try {
 
-        Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
+            Long clienteId = tokenService.obterIdPorToken(token);
 
-        if(!tokenService.verificaToken(clienteEncontrado.get(), token)){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
+
+            if(!tokenService.verificaToken(clienteEncontrado, token)){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            contaService.verificaConta(clienteId);
+
+            contaService.transferir(clienteEncontrado, contaRequest.getNumero(), contaRequest.getValor());
+
+            return ResponseEntity.ok("Transferência realizada com sucesso");
+
+        }catch (Exception e){
+            throw new LoginNaoAutorizadoException("Erro ao transferir: "+e.getMessage());
         }
-
-        contaService.verificaConta(clienteId);
-
-        contaService.transferir(clienteEncontrado.get(), contaRequest.getNumero(), contaRequest.getValor());
-
-        return ResponseEntity.ok("Transferência realizada com sucesso");
-
     }
 }

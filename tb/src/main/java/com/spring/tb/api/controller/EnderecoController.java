@@ -1,5 +1,6 @@
 package com.spring.tb.api.controller;
 
+import com.spring.tb.domain.exception.LoginNaoAutorizadoException;
 import com.spring.tb.domain.model.Cliente;
 import com.spring.tb.domain.model.Endereco;
 import com.spring.tb.domain.services.ClienteService;
@@ -28,56 +29,73 @@ public class EnderecoController {
     public ResponseEntity<Endereco> cadastrar(@Valid @RequestBody Endereco endereco,
                                               @RequestHeader String token){
 
-        Long clienteId = tokenService.obterIdPorToken(token);
+        try {
 
-        Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
+            Long clienteId = tokenService.obterIdPorToken(token);
 
-        tokenService.verificaToken(clienteEncontrado, token);
+            Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
-        enderecoService.buscarPorClienteId(clienteId);
+            tokenService.verificaToken(clienteEncontrado, token);
 
-        endereco.setCliente(clienteEncontrado);
+            enderecoService.buscarPorClienteId(clienteId);
 
-        Endereco enderecoSalvo = enderecoService.salvar(endereco);
+            endereco.setCliente(clienteEncontrado);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(enderecoSalvo);
+            Endereco enderecoSalvo = enderecoService.salvar(endereco);
 
+            return ResponseEntity.status(HttpStatus.CREATED).body(enderecoSalvo);
+
+        }catch (Exception e){
+            throw new LoginNaoAutorizadoException("Erro ao cadastrar endereço: "+e.getMessage());
+        }
     }
 
     @PutMapping
     public ResponseEntity<String> atualizar(@Valid @RequestBody Endereco endereco,
                                        @RequestHeader String token){
 
-        Long clienteId = tokenService.obterIdPorToken(token);
+        try {
 
-        Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
+            Long clienteId = tokenService.obterIdPorToken(token);
 
-        tokenService.verificaToken(clienteEncontrado, token);
+            Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
-        Endereco enderecoEncontrado = enderecoService.verificaEndereco(clienteId);
+            tokenService.verificaToken(clienteEncontrado, token);
 
-        endereco.setId(enderecoEncontrado.getId());
+            Endereco enderecoEncontrado = enderecoService.verificaEndereco(clienteId);
 
-        endereco.setCliente(clienteEncontrado);
+            endereco.setId(enderecoEncontrado.getId());
 
-        enderecoService.salvar(endereco);
+            endereco.setCliente(clienteEncontrado);
 
-        return ResponseEntity.status(HttpStatus.OK).body("Endereço atualizado");
+            enderecoService.salvar(endereco);
+
+            return ResponseEntity.status(HttpStatus.OK).body("Endereço atualizado");
+
+        }catch (Exception e){
+            throw new LoginNaoAutorizadoException("Erro ao atualizar endereço: "+e.getMessage());
+        }
 
     }
 
     @GetMapping
     public ResponseEntity<Endereco> buscarPorClienteId(@RequestHeader String token){
 
-        Long clienteId = tokenService.obterIdPorToken(token);
+        try {
 
-        Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
+            Long clienteId = tokenService.obterIdPorToken(token);
 
-        tokenService.verificaToken(clienteEncontrado, token);
+            Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
-        Endereco enderecoEncontrado = enderecoService.verificaEndereco(clienteId);
+            tokenService.verificaToken(clienteEncontrado, token);
 
-        return ResponseEntity.status(HttpStatus.OK).body(enderecoEncontrado);
+            Endereco enderecoEncontrado = enderecoService.verificaEndereco(clienteId);
+
+            return ResponseEntity.status(HttpStatus.OK).body(enderecoEncontrado);
+
+        }catch (Exception e){
+            throw new LoginNaoAutorizadoException("Erro ao obter dados: "+e.getMessage());
+        }
 
     }
 

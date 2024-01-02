@@ -1,8 +1,8 @@
 package com.spring.tb.api.controller;
 
 import com.spring.tb.api.assembler.ExtratoAssembler;
-import com.spring.tb.api.model.ExtratoInput;
 import com.spring.tb.api.dto.ExtratoDto;
+import com.spring.tb.api.model.ExtratoInput;
 import com.spring.tb.domain.model.Cliente;
 import com.spring.tb.domain.model.Extrato;
 import com.spring.tb.domain.services.ClienteService;
@@ -15,14 +15,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/extrato")
 @AllArgsConstructor
 public class ExtratoController {
-
-    private ClienteService clienteService;
 
     @Autowired
     private JwtTokenService tokenService;
@@ -31,12 +28,13 @@ public class ExtratoController {
 
     private ExtratoAssembler extratoAssembler;
 
-    @GetMapping
-    public ResponseEntity<List<ExtratoDto>> listar(@RequestHeader String token){
+    private ClienteService clienteService;
+
+    @GetMapping("/tipo")
+    public ResponseEntity<List<ExtratoDto>> listarPorTipo(@RequestHeader String token,
+                                                    @RequestBody ExtratoInput extratoInput){
 
         Long clienteId = tokenService.obterIdPorToken(token);
-
-        List<Extrato> listaDeExtratosPorCliente = extratoService.listarPorCliente(clienteId);
 
         Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
@@ -44,32 +42,31 @@ public class ExtratoController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        List<ExtratoDto> extratos = extratoAssembler.toList(listaDeExtratosPorCliente);
+        List<Extrato> listaDeExtratosPorTipo = extratoService.listarPorTipo(extratoInput.getTipo(),
+                clienteEncontrado.getId());
+
+        List<ExtratoDto> extratos = extratoAssembler.toList(listaDeExtratosPorTipo);
 
         return ResponseEntity.ok(extratos);
 
     }
 
-    @GetMapping("/tipo")
-    public ResponseEntity<List<ExtratoDto>> listarPorTipo(@RequestHeader String token,
-                                                 @RequestBody ExtratoInput extratoInput){
+    @GetMapping
+    public ResponseEntity<List<ExtratoDto>> listarTodos(@RequestHeader String token){
 
         Long clienteId = tokenService.obterIdPorToken(token);
 
-        Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(clienteId);
+        Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
-        if(!tokenService.verificaToken(clienteEncontrado.get(), token)){
+        if(!tokenService.verificaToken(clienteEncontrado, token)){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        List<Extrato> extratos = extratoService
-                .listarPorTipo(extratoInput.getTipo(), clienteEncontrado.get().getId());
+        List<Extrato> listaDeExtratosPorTipo = extratoService.listarPorClienteId(clienteId);
 
-        List<ExtratoDto> listaDeExtratos = extratoAssembler.toList(extratos);
+        List<ExtratoDto> extratos = extratoAssembler.toList(listaDeExtratosPorTipo);
 
-        return ResponseEntity.ok(listaDeExtratos);
+        return ResponseEntity.ok(extratos);
 
     }
-
-
 }

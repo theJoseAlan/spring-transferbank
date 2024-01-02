@@ -47,9 +47,11 @@ public class ClienteController {
     @PostMapping("/login")
     public ResponseEntity<String> login(@Valid @RequestBody Login login){
 
-        Cliente cliente = clienteService.verificaCadastroCliente(login.getEmail());
+        Cliente clienteEncontrado = clienteService.verificaCadastroCliente(login.getEmail());
 
-        return ResponseEntity.ok(tokenService.geraTokenLogin(login.getSenha(), cliente));
+        String token = tokenService.geraTokenLogin(login.getSenha(), clienteEncontrado);
+
+        return ResponseEntity.ok(token);
 
     }
 
@@ -60,20 +62,20 @@ public class ClienteController {
 
             Long clienteId = tokenService.obterIdPorToken(token);
 
-            Cliente cliente = clienteService.verificaCadastroCliente(clienteId);
+            Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
-            if(!tokenService.verificaToken(cliente, token)){
+            if(!tokenService.verificaToken(clienteEncontrado, token)){
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
 
             tokenService.obterIdPorToken(token);
 
-            ClienteDto clienteDto = modelMapper.map(cliente, ClienteDto.class);
+            ClienteDto clienteDto = modelMapper.map(clienteEncontrado, ClienteDto.class);
 
             return ResponseEntity.ok(clienteDto);
 
         }catch (Exception e){
-            throw new NegocioException("Erro ao obter dados cliente");
+            throw new NegocioException("Erro ao obter dados cliente: "+e.getMessage());
         }
 
     }
@@ -95,7 +97,7 @@ public class ClienteController {
 
             return ResponseEntity.status(HttpStatus.OK).body("Cliente atualizado!");
         }catch (Exception e){
-            throw new NegocioException("Erro ao atualizar cliente");
+            throw new NegocioException("Erro ao atualizar cliente "+e.getMessage());
         }
     }
 
@@ -106,9 +108,9 @@ public class ClienteController {
 
             Long clienteId = tokenService.obterIdPorToken(token);
 
-            Cliente cliente = clienteService.verificaCadastroCliente(clienteId);
+            Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
-            if(!tokenService.verificaToken(cliente, token)){
+            if(!tokenService.verificaToken(clienteEncontrado, token)){
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
 

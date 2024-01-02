@@ -1,18 +1,12 @@
 package com.spring.tb.domain.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.time.OffsetDateTime;
 
-
-
 @Entity
-@Getter
-@Setter
-@AllArgsConstructor
+@Data
 public class Extrato {
 
     @Id
@@ -23,13 +17,11 @@ public class Extrato {
 
     private Float valor;
 
-    private OffsetDateTime data;
+    private OffsetDateTime dataHora;
 
     private String nomeClienteDestino;
 
-    @OneToOne
+    @ManyToOne
     private Cliente cliente;
 
-    public Extrato() {
-    }
 }

@@ -18,9 +18,9 @@ public class ContaService {
 
     private ContaRepository contaRepository;
 
-    private ExtratoService extratoService;
-
     private EnderecoService enderecoService;
+
+    private ExtratoService extratoService;
 
     @Transactional
     public Conta abrirConta(Cliente cliente){
@@ -74,7 +74,7 @@ public class ContaService {
 
         contaRepository.save(contaEncontrada.get());
 
-        extratoService.geraExtratoDeposito(cliente, numeroConta, valor);
+        extratoService.geraExtratoDeposito(valor, cliente, contaEncontrada.get());
 
     }
 
@@ -100,7 +100,7 @@ public class ContaService {
 
         contaRepository.save(contaEncontrada.get());
 
-        extratoService.geraExtratoSaque(contaEncontrada.get().getCliente(), valor);
+        extratoService.geraExtratoSaque(valor, contaEncontrada.get().getCliente());
 
     }
 
@@ -135,7 +135,9 @@ public class ContaService {
         contaRepository.save(contaOrigem.get());
         contaRepository.save(contaDestino.get());
 
-        extratoService.geraExtratoTransferencia(contaOrigem.get().getNumero(), nroContaDestino, valor);
+        extratoService.geraExtratoTransferencia(valor,
+                contaDestino.get().getCliente(),
+                contaOrigem.get().getCliente());
 
     }
 
@@ -151,12 +153,15 @@ public class ContaService {
 
         Optional<Conta> contaEncontrada = contaRepository.findByClienteId(clienteId);
 
-        if(contaEncontrada.get().getSaldo() > 0){
-            throw new NegocioException("Você ainda possui saldo na conta");
-        }
+        if(contaEncontrada.isPresent()){
 
-        extratoService.deletarTodosPorClienteId(clienteId);
-        contaRepository.deleteById(contaEncontrada.get().getId());
+            if(contaEncontrada.get().getSaldo() > 0){
+                throw new NegocioException("Você ainda possui saldo na conta");
+            }
+
+            //extratoService.deletarTodosPorClienteId(clienteId);
+            contaRepository.deleteById(contaEncontrada.get().getId());
+        }
 
     }
 
