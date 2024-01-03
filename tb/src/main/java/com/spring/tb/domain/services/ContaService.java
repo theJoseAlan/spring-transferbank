@@ -4,6 +4,7 @@ import com.spring.tb.domain.exception.EntidadeNaoEncontradaException;
 import com.spring.tb.domain.exception.NegocioException;
 import com.spring.tb.domain.model.Cliente;
 import com.spring.tb.domain.model.Conta;
+import com.spring.tb.domain.model.Extrato;
 import com.spring.tb.domain.repository.ContaRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,8 @@ public class ContaService {
 
     private ExtratoService extratoService;
 
+    private EmailService emailService;
+
     @Transactional
     public Conta abrirConta(Cliente cliente){
 
@@ -36,6 +39,9 @@ public class ContaService {
         conta.setCliente(cliente);
 
         contaRepository.save(conta);
+
+//        emailService.sendEmail(cliente.getEmail(), "TransferBank",
+//                cliente.getNome()+", sua conta foi aberta com sucesso!");
 
         return conta;
     }
@@ -74,7 +80,11 @@ public class ContaService {
 
         contaRepository.save(contaEncontrada.get());
 
-        extratoService.geraExtratoDeposito(valor, cliente, contaEncontrada.get());
+        Extrato extrato = extratoService.geraExtratoDeposito(valor, cliente, contaEncontrada.get());
+
+//        emailService.sendEmail(cliente.getEmail(), "TransferBank",
+//                cliente.getNome()+", depósito realizado com sucesso! \n" +
+//                        extrato);
 
     }
 
@@ -100,7 +110,11 @@ public class ContaService {
 
         contaRepository.save(contaEncontrada.get());
 
-        extratoService.geraExtratoSaque(valor, contaEncontrada.get().getCliente());
+        Extrato extrato = extratoService.geraExtratoSaque(valor, contaEncontrada.get().getCliente());
+
+//        emailService.sendEmail(contaEncontrada.get().getCliente().getEmail(), "TransferBank",
+//                contaEncontrada.get().getCliente().getNome()+", saque realizado com sucesso! \n" +
+//                        extrato);
 
     }
 
@@ -135,9 +149,13 @@ public class ContaService {
         contaRepository.save(contaOrigem.get());
         contaRepository.save(contaDestino.get());
 
-        extratoService.geraExtratoTransferencia(valor,
+        Extrato extrato = extratoService.geraExtratoTransferencia(valor,
                 contaDestino.get().getCliente(),
                 contaOrigem.get().getCliente());
+
+//        emailService.sendEmail(cliente.getEmail(), "TransferBank",
+//                cliente.getNome()+", saque realizado com sucesso! \n" +
+//                        extrato);
 
     }
 
@@ -168,7 +186,7 @@ public class ContaService {
                 throw new NegocioException("Você ainda possui saldo na conta");
             }
 
-            //extratoService.deletarTodosPorClienteId(clienteId);
+            extratoService.deletarTodosPorClienteId(clienteId);
             contaRepository.deleteById(contaEncontrada.get().getId());
         }
 

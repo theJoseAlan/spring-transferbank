@@ -2,7 +2,6 @@ package com.spring.tb.api.controller;
 
 import com.spring.tb.api.dto.ClienteDto;
 import com.spring.tb.api.model.Login;
-import com.spring.tb.domain.exception.NegocioException;
 import com.spring.tb.domain.model.Cliente;
 import com.spring.tb.domain.services.*;
 import jakarta.validation.Valid;
@@ -36,8 +35,8 @@ public class ClienteController {
 
         clienteService.salvar(cliente);
 
-//        emailService.sendEmail(cliente.getEmail(), "Cadastro TransferBank",
-//                cliente.getNome()+", seu cadastro foi criado com suceso");
+//        emailService.sendEmail(cliente.getEmail(), "TransferBank",
+//                cliente.getNome()+", seu cadastro foi criado com sucesso");
 
         ClienteDto clienteDto = modelMapper.map(cliente, ClienteDto.class);
 
@@ -58,69 +57,58 @@ public class ClienteController {
     @GetMapping
     public ResponseEntity<ClienteDto> obterPorId(@RequestHeader String token){
 
-        try {
+        Long clienteId = tokenService.obterIdPorToken(token);
 
-            Long clienteId = tokenService.obterIdPorToken(token);
+        Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
-            Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
+        tokenService.verificaToken(clienteEncontrado, token);
 
-            tokenService.verificaToken(clienteEncontrado, token);
+        tokenService.obterIdPorToken(token);
 
-            tokenService.obterIdPorToken(token);
+        ClienteDto clienteDto = modelMapper.map(clienteEncontrado, ClienteDto.class);
 
-            ClienteDto clienteDto = modelMapper.map(clienteEncontrado, ClienteDto.class);
-
-            return ResponseEntity.ok(clienteDto);
-
-        }catch (Exception e){
-            throw new NegocioException("Erro ao obter dados cliente: "+e.getMessage());
-        }
+        return ResponseEntity.ok(clienteDto);
 
     }
 
     @PutMapping
     public ResponseEntity<String> atualizar(@Valid @RequestBody Cliente cliente,
                                              @RequestHeader String token){
-        try {
-            Long clienteId = tokenService.obterIdPorToken(token);
 
-            Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
+        Long clienteId = tokenService.obterIdPorToken(token);
 
-            tokenService.verificaToken(clienteEncontrado, token);
+        Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
-            cliente.setId(clienteId);
+        tokenService.verificaToken(clienteEncontrado, token);
 
-            clienteService.atualizar(cliente);
+        cliente.setId(clienteId);
 
-            return ResponseEntity.status(HttpStatus.OK).body("Cliente atualizado!");
-        }catch (Exception e){
-            throw new NegocioException("Erro ao atualizar cliente "+e.getMessage());
-        }
+        clienteService.atualizar(cliente);
+
+        return ResponseEntity.status(HttpStatus.OK).body("Cliente atualizado!");
+
     }
 
     @DeleteMapping
     public ResponseEntity<Void> deletar(@RequestHeader String token){
 
-        try {
+        Long clienteId = tokenService.obterIdPorToken(token);
 
-            Long clienteId = tokenService.obterIdPorToken(token);
+        Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
-            Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
+        tokenService.verificaToken(clienteEncontrado, token);
 
-            tokenService.verificaToken(clienteEncontrado, token);
+        contaService.deletarConta(clienteId);
 
-            contaService.deletarConta(clienteId);
+        enderecoService.deletarEnderecoExistente(clienteId);
 
-            enderecoService.deletarEnderecoExistente(clienteId);
+        clienteService.deletarPorId(clienteId);
 
-            clienteService.deletarPorId(clienteId);
+//        emailService.sendEmail(clienteEncontrado.getEmail(), "TransferBank",
+//                clienteEncontrado.getNome()+", seu cadastro foi excluído com sucesso");
 
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
-        }catch (Exception e){
-            throw new NegocioException("Erro ao deletar cliente: "+e.getMessage());
-
-        }
     }
 
 }

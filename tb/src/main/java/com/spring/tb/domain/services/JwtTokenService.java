@@ -88,6 +88,8 @@ public class JwtTokenService {
 
     public Long obterIdPorToken(String token){
 
+        try {
+
         Jwt jwt = JwtHelper.decode(token);
 
         // Obtendo o corpo (payload) do token como uma String
@@ -95,15 +97,13 @@ public class JwtTokenService {
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        try {
-
             //Convertendo o payload em um Objeto
             ObjetoToken objetoToken = objectMapper.readValue(payload, ObjetoToken.class);
 
             return objetoToken.getJti();
 
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao converter o corpo do token em Objeto. "+e.getMessage());
+            throw new LoginNaoAutorizadoException("Faça o login para obter o token de acesso");
         }
 
     }

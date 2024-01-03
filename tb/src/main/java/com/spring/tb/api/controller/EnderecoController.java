@@ -1,6 +1,5 @@
 package com.spring.tb.api.controller;
 
-import com.spring.tb.domain.exception.LoginNaoAutorizadoException;
 import com.spring.tb.domain.model.Cliente;
 import com.spring.tb.domain.model.Endereco;
 import com.spring.tb.domain.services.ClienteService;
@@ -29,73 +28,56 @@ public class EnderecoController {
     public ResponseEntity<Endereco> cadastrar(@Valid @RequestBody Endereco endereco,
                                               @RequestHeader String token){
 
-        try {
+        Long clienteId = tokenService.obterIdPorToken(token);
 
-            Long clienteId = tokenService.obterIdPorToken(token);
+        Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
-            Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
+        tokenService.verificaToken(clienteEncontrado, token);
 
-            tokenService.verificaToken(clienteEncontrado, token);
+        enderecoService.buscarPorClienteId(clienteId);
 
-            enderecoService.buscarPorClienteId(clienteId);
+        endereco.setCliente(clienteEncontrado);
 
-            endereco.setCliente(clienteEncontrado);
+        Endereco enderecoSalvo = enderecoService.salvar(endereco);
 
-            Endereco enderecoSalvo = enderecoService.salvar(endereco);
+        return ResponseEntity.status(HttpStatus.CREATED).body(enderecoSalvo);
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(enderecoSalvo);
-
-        }catch (Exception e){
-            throw new LoginNaoAutorizadoException("Erro ao cadastrar endereço: "+e.getMessage());
-        }
     }
 
     @PutMapping
     public ResponseEntity<String> atualizar(@Valid @RequestBody Endereco endereco,
                                        @RequestHeader String token){
 
-        try {
+        Long clienteId = tokenService.obterIdPorToken(token);
 
-            Long clienteId = tokenService.obterIdPorToken(token);
+        Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
-            Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
+        tokenService.verificaToken(clienteEncontrado, token);
 
-            tokenService.verificaToken(clienteEncontrado, token);
+        Endereco enderecoEncontrado = enderecoService.verificaEndereco(clienteId);
 
-            Endereco enderecoEncontrado = enderecoService.verificaEndereco(clienteId);
+        endereco.setId(enderecoEncontrado.getId());
 
-            endereco.setId(enderecoEncontrado.getId());
+        endereco.setCliente(clienteEncontrado);
 
-            endereco.setCliente(clienteEncontrado);
+        enderecoService.salvar(endereco);
 
-            enderecoService.salvar(endereco);
-
-            return ResponseEntity.status(HttpStatus.OK).body("Endereço atualizado");
-
-        }catch (Exception e){
-            throw new LoginNaoAutorizadoException("Erro ao atualizar endereço: "+e.getMessage());
-        }
+        return ResponseEntity.status(HttpStatus.OK).body("Endereço atualizado");
 
     }
 
     @GetMapping
     public ResponseEntity<Endereco> buscarPorClienteId(@RequestHeader String token){
 
-        try {
+        Long clienteId = tokenService.obterIdPorToken(token);
 
-            Long clienteId = tokenService.obterIdPorToken(token);
+        Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
 
-            Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
+        tokenService.verificaToken(clienteEncontrado, token);
 
-            tokenService.verificaToken(clienteEncontrado, token);
+        Endereco enderecoEncontrado = enderecoService.verificaEndereco(clienteId);
 
-            Endereco enderecoEncontrado = enderecoService.verificaEndereco(clienteId);
-
-            return ResponseEntity.status(HttpStatus.OK).body(enderecoEncontrado);
-
-        }catch (Exception e){
-            throw new LoginNaoAutorizadoException("Erro ao obter dados: "+e.getMessage());
-        }
+        return ResponseEntity.status(HttpStatus.OK).body(enderecoEncontrado);
 
     }
 

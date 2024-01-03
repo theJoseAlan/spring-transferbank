@@ -19,7 +19,7 @@ public class ExtratoService {
     private ExtratoRepository extratoRepository;
 
     @Transactional
-    public void geraExtratoTransferencia(Float valor, Cliente contaClienteDestino,
+    public Extrato geraExtratoTransferencia(Float valor, Cliente contaClienteDestino,
                                          Cliente contaClienteOrigem){
 
         Extrato extrato = new Extrato();
@@ -34,10 +34,10 @@ public class ExtratoService {
         extrato.setNomeClienteDestino(contaClienteDestino.getNome());
         extrato.setCliente(contaClienteOrigem);
 
-        extratoRepository.save(extrato);
+        return extratoRepository.save(extrato);
     }
 
-    public void geraExtratoDeposito(Float valor, Cliente cliente, Conta conta){
+    public Extrato geraExtratoDeposito(Float valor, Cliente cliente, Conta conta){
 
         Extrato extrato = new Extrato();
 
@@ -51,10 +51,10 @@ public class ExtratoService {
 
         extrato.setCliente(cliente);
 
-        extratoRepository.save(extrato);
+        return extratoRepository.save(extrato);
     }
 
-    public void geraExtratoSaque(Float valor, Cliente cliente){
+    public Extrato geraExtratoSaque(Float valor, Cliente cliente){
 
         Extrato extrato = new Extrato();
 
@@ -64,7 +64,11 @@ public class ExtratoService {
 
         extrato.setCliente(cliente);
 
-        extratoRepository.save(extrato);
+        return extratoRepository.save(extrato);
+    }
+
+    public void deletarTodosPorClienteId(Long clienteId){
+        extratoRepository.deletarTodosPorClienteId(clienteId);
     }
 
     public List<Extrato> listarPorClienteId(Long clienteId){
