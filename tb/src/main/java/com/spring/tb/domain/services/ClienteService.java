@@ -17,12 +17,6 @@ public class ClienteService {
     @Autowired
     private ClienteRepository clienteRepository;
 
-    @Autowired
-    private EnderecoService enderecoService;
-
-    @Autowired
-    private ContaService contaService;
-
     @Transactional
     public Cliente salvar(Cliente cliente){
 

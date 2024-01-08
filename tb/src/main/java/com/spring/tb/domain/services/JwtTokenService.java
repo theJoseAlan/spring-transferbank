@@ -22,7 +22,6 @@ public class JwtTokenService {
 
     private SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
-
     public String geraToken(Cliente cliente){
 
         SecureRandom random = new SecureRandom();
