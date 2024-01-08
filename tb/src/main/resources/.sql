@@ -21,3 +21,24 @@ CREATE TABLE cliente(
   cpf varchar(225),
   senha varchar(255)
 )
+
+CREATE TABLE conta (
+
+  id serial primary key,
+  cliente_id integer references cliente(id),
+  agencia integer,
+  numero integer,
+  saldo real
+
+)
+
+CREATE TABLE extrato (
+
+  id serial primary key,
+  tipo varchar(255),
+  valor real,
+  data_hora timestamp default now(),
+  nome_cliente_destino varchar(255),
+  cliente_id integer references cliente(id)
+
+)
