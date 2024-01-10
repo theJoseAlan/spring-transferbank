@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 @Service
@@ -30,7 +31,7 @@ public class ExtratoService {
 
         extrato.setTipo("Transferencia");
         extrato.setValor(valor);
-        extrato.setDataHora(OffsetDateTime.now());
+        extrato.setDataHora(OffsetDateTime.now().withOffsetSameLocal(ZoneOffset.UTC));
         extrato.setNomeClienteDestino(contaClienteDestino.getNome());
         extrato.setCliente(contaClienteOrigem);
 
@@ -43,7 +44,7 @@ public class ExtratoService {
 
         extrato.setTipo("Deposito");
         extrato.setValor(valor);
-        extrato.setDataHora(OffsetDateTime.now());
+        extrato.setDataHora(OffsetDateTime.now().withOffsetSameLocal(ZoneOffset.UTC));
 
         if(!cliente.equals(conta.getCliente())){
             extrato.setNomeClienteDestino(conta.getCliente().getNome());
@@ -60,8 +61,7 @@ public class ExtratoService {
 
         extrato.setTipo("Saque");
         extrato.setValor(valor);
-        extrato.setDataHora(OffsetDateTime.now());
-
+        extrato.setDataHora(OffsetDateTime.now().withOffsetSameLocal(ZoneOffset.UTC));
         extrato.setCliente(cliente);
 
         return extratoRepository.save(extrato);
