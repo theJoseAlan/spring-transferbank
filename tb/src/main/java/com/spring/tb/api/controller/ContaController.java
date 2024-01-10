@@ -98,6 +98,24 @@ public class ContaController {
 
     }
 
+    @PutMapping("/depositar")
+    public ResponseEntity<String> depositarNaPropriaConta(@RequestHeader String token,
+                                            @RequestBody ContaRequest contaRequest){
+
+        Long clienteId = tokenService.obterIdPorToken(token);
+
+        Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
+
+        tokenService.verificaToken(clienteEncontrado, token);
+
+        contaService.verificaConta(clienteId);
+
+        contaService.depositarNaPropriaConta(clienteEncontrado, contaRequest.getValor());
+
+        return ResponseEntity.ok().body("Depósito realizado com sucesso!");
+
+    }
+
     @PutMapping("/sacar")
     public ResponseEntity<String> sacar(@RequestHeader String token,
                                    @RequestBody ContaRequest contaRequest){

@@ -88,6 +88,32 @@ public class ContaService {
 
     }
 
+    public void depositarNaPropriaConta(Cliente cliente, Float valor){
+
+        Optional<Conta> contaEncontrada = contaRepository.findByClienteId(cliente.getId());
+
+        if(!contaEncontrada.isPresent()){
+            throw new EntidadeNaoEncontradaException("Conta não encontrada");
+        }
+
+        if(valor <= 0){
+            throw new NegocioException("Insira um valor válido para o depósito");
+        }
+
+        Float valorDeposito = contaEncontrada.get().getSaldo() + valor;
+
+        contaEncontrada.get().setSaldo(valorDeposito);
+
+        contaRepository.save(contaEncontrada.get());
+
+        Extrato extrato = extratoService.geraExtratoDeposito(valor, cliente, contaEncontrada.get());
+
+//        emailService.sendEmail(cliente.getEmail(), "TransferBank",
+//                cliente.getNome()+", depósito realizado com sucesso! \n" +
+//                        extrato);
+
+    }
+
     public void sacar(Long clienteId, Float valor){
 
         Optional<Conta> contaEncontrada = contaRepository.findByClienteId(clienteId);
