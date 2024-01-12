@@ -64,4 +64,27 @@ public class ExtratoController {
         return ResponseEntity.ok(extratos);
 
     }
+
+    @GetMapping("/data")
+    public ResponseEntity<List<ExtratoDto>> listarPorData(@RequestBody ExtratoInput extratoInput){
+
+        List<Extrato> listaDeExtratosPorTipo = extratoService.listarPorData(extratoInput.getData());
+
+        List<ExtratoDto> extratos = extratoAssembler.toList(listaDeExtratosPorTipo);
+
+        return ResponseEntity.ok(extratos);
+
+    }
+
+    @GetMapping("/data-hora")
+    public ResponseEntity<List<ExtratoDto>> listarPorDataEHora(@RequestBody ExtratoInput extratoInput){
+
+        List<Extrato> listaDeExtratosPorTipo = extratoService
+                .listarPorDataEHora(extratoInput.getData(), extratoInput.getHora());
+
+        List<ExtratoDto> extratos = extratoAssembler.toList(listaDeExtratosPorTipo);
+
+        return ResponseEntity.ok(extratos);
+
+    }
 }

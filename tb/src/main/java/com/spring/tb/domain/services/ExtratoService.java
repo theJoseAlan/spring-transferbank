@@ -5,18 +5,19 @@ import com.spring.tb.domain.model.Cliente;
 import com.spring.tb.domain.model.Conta;
 import com.spring.tb.domain.model.Extrato;
 import com.spring.tb.domain.repository.ExtratoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class ExtratoService {
 
-    @Autowired
     private ExtratoRepository extratoRepository;
 
     @Transactional
@@ -31,7 +32,16 @@ public class ExtratoService {
 
         extrato.setTipo("Transferencia");
         extrato.setValor(valor);
-        extrato.setDataHora(OffsetDateTime.now().withOffsetSameLocal(ZoneOffset.UTC));
+
+        // Formatando a data no formato desejado (dd/MM/yy)
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy");
+        String dataFormatada = LocalDate.now().format(formatter);
+
+        // Convertendo a string formatada para LocalDate
+        extrato.setData(LocalDate.parse(dataFormatada, formatter));
+
+        extrato.setHora(LocalTime.now());
+
         extrato.setNomeClienteDestino(contaClienteDestino.getNome());
         extrato.setCliente(contaClienteOrigem);
 
@@ -44,7 +54,12 @@ public class ExtratoService {
 
         extrato.setTipo("Deposito");
         extrato.setValor(valor);
-        extrato.setDataHora(OffsetDateTime.now().withOffsetSameLocal(ZoneOffset.UTC));
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy");
+        String dataFormatada = LocalDate.now().format(formatter);
+        extrato.setData(LocalDate.parse(dataFormatada, formatter));
+
+        extrato.setHora(LocalTime.now());
 
         if(!cliente.equals(conta.getCliente())){
             extrato.setNomeClienteDestino(conta.getCliente().getNome());
@@ -61,7 +76,13 @@ public class ExtratoService {
 
         extrato.setTipo("Saque");
         extrato.setValor(valor);
-        extrato.setDataHora(OffsetDateTime.now().withOffsetSameLocal(ZoneOffset.UTC));
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy");
+        String dataFormatada = LocalDate.now().format(formatter);
+        extrato.setData(LocalDate.parse(dataFormatada, formatter));
+
+        extrato.setHora(LocalTime.now());
+
         extrato.setCliente(cliente);
 
         return extratoRepository.save(extrato);
@@ -69,6 +90,14 @@ public class ExtratoService {
 
     public void deletarTodosPorClienteId(Long clienteId){
         extratoRepository.deletarTodosPorClienteId(clienteId);
+    }
+
+    public List<Extrato> listarPorData(LocalDate data){
+        return extratoRepository.findAllByData(data);
+    }
+
+    public List<Extrato> listarPorDataEHora(LocalDate data, LocalTime hora){
+        return extratoRepository.findAllByDataAndHora(data, hora);
     }
 
     public List<Extrato> listarPorClienteId(Long clienteId){

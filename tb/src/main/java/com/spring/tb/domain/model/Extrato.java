@@ -3,7 +3,8 @@ package com.spring.tb.domain.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Data
@@ -17,7 +18,9 @@ public class Extrato {
 
     private Float valor;
 
-    private OffsetDateTime dataHora;
+    private LocalDate data;
+
+    private LocalTime hora;
 
     private String nomeClienteDestino;
 

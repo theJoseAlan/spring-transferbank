@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -15,7 +16,9 @@ public class ExtratoDto {
 
     private Float valor;
 
-    private OffsetDateTime data;
+    private LocalDate data;
+
+    private LocalTime hora;
 
     private String nomeClienteDestino;
 
