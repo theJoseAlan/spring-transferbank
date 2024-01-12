@@ -37,7 +37,8 @@ CREATE TABLE extrato (
   id serial primary key,
   tipo varchar(255),
   valor real,
-  data_hora timestamp default now(),
+  data DATE DEFAULT CURRENT_DATE,
+  hora TIME(0),
   nome_cliente_destino varchar(255),
   cliente_id integer references cliente(id)
 
