@@ -66,7 +66,14 @@ public class ExtratoController {
     }
 
     @GetMapping("/data")
-    public ResponseEntity<List<ExtratoDto>> listarPorData(@RequestBody ExtratoInput extratoInput){
+    public ResponseEntity<List<ExtratoDto>> listarPorData(@RequestHeader String token,
+                                                          @RequestBody ExtratoInput extratoInput){
+
+        Long clienteId = tokenService.obterIdPorToken(token);
+
+        Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
+
+        tokenService.verificaToken(clienteEncontrado, token);
 
         List<Extrato> listaDeExtratosPorTipo = extratoService.listarPorData(extratoInput.getData());
 
@@ -77,7 +84,14 @@ public class ExtratoController {
     }
 
     @GetMapping("/data-hora")
-    public ResponseEntity<List<ExtratoDto>> listarPorDataEHora(@RequestBody ExtratoInput extratoInput){
+    public ResponseEntity<List<ExtratoDto>> listarPorDataEHora(@RequestHeader String token,
+                                                               @RequestBody ExtratoInput extratoInput){
+
+        Long clienteId = tokenService.obterIdPorToken(token);
+
+        Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
+
+        tokenService.verificaToken(clienteEncontrado, token);
 
         List<Extrato> listaDeExtratosPorTipo = extratoService
                 .listarPorDataEHora(extratoInput.getData(), extratoInput.getHora());
