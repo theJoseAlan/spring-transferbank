@@ -44,7 +44,7 @@
   - [x] // por data
   - [x] // por data e hora
 
-- Obs: Apenas o cadastro do cliente é realizado sem o token, que pode ser obtido no login
+- Obs: Apenas o cadastro do cliente é realizado sem o token, que pode ser obtido no login após o cadastro do cliente
 
 ---
 
