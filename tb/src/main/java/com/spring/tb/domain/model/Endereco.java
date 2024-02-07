@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
-//Aqui cabe uma alteração: O cliente informa apenas o cep e eu dou um get no restante dos dados
 @Getter
 @Setter
 @Entity

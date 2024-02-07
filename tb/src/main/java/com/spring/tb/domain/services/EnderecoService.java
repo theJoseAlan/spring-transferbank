@@ -1,7 +1,10 @@
 package com.spring.tb.domain.services;
 
+import com.spring.tb.api.model.EnderecoRequest;
+import com.spring.tb.api.model.EnderecoResponse;
 import com.spring.tb.domain.exception.EntidadeNaoEncontradaException;
 import com.spring.tb.domain.exception.NegocioException;
+import com.spring.tb.domain.model.Cliente;
 import com.spring.tb.domain.model.Endereco;
 import com.spring.tb.domain.repository.EnderecoRepository;
 import lombok.AllArgsConstructor;
@@ -17,7 +20,26 @@ public class EnderecoService {
     @Autowired
     private EnderecoRepository enderecoRepository;
 
+    private ViaCepService viaCepService;
+
     public Endereco salvar(Endereco endereco){
+        return enderecoRepository.save(endereco);
+    }
+
+    public Endereco salvar(String cep, EnderecoRequest enderecoRequest, Cliente cliente){
+
+        EnderecoResponse enderecoResponse = viaCepService.getEndereco(cep);
+
+        Endereco endereco = new Endereco();
+
+        endereco.setLogradouro(enderecoResponse.getLogradouro());
+        endereco.setNumero(enderecoRequest.getNumero());
+        endereco.setComplemento(enderecoRequest.getComplemento());
+        endereco.setBairro(enderecoResponse.getBairro());
+        endereco.setCidade(enderecoResponse.getLocalidade());
+        endereco.setEstado(enderecoResponse.getUf());
+        endereco.setCliente(cliente);
+
         return enderecoRepository.save(endereco);
     }
 

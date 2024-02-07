@@ -1,5 +1,6 @@
 package com.spring.tb.api.controller;
 
+import com.spring.tb.api.model.EnderecoRequest;
 import com.spring.tb.domain.model.Cliente;
 import com.spring.tb.domain.model.Endereco;
 import com.spring.tb.domain.services.ClienteService;
@@ -41,6 +42,25 @@ public class EnderecoController {
         Endereco enderecoSalvo = enderecoService.salvar(endereco);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(enderecoSalvo);
+
+    }
+
+    @PostMapping("/{cep}")
+    public ResponseEntity<?> cadastrarEndereco(@RequestHeader String token,
+                                                      @PathVariable String cep,
+                                                      @RequestBody EnderecoRequest enderecoRequest){
+
+        Long clienteId = tokenService.obterIdPorToken(token);
+
+        Cliente clienteEncontrado = clienteService.verificaCadastroCliente(clienteId);
+
+        tokenService.verificaToken(clienteEncontrado, token);
+
+        enderecoService.buscarPorClienteId(clienteId);
+
+        Endereco endereco = enderecoService.salvar(cep, enderecoRequest, clienteEncontrado);
+
+        return ResponseEntity.status(HttpStatus.OK).body(endereco);
 
     }
 
